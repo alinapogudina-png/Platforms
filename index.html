@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jump Quiz Builder - ELT Workshop</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+        
+        body { font-family: 'Poppins', sans-serif; background-color: #1a1a24; color: #e0e0ff; display: flex; padding: 20px; gap: 20px; height: 100vh; margin: 0; box-sizing: border-box; overflow: hidden; }
+        
+        body::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle at 15% 50%, rgba(76, 58, 120, 0.2), transparent 25%), radial-gradient(circle at 85% 30%, rgba(41, 128, 185, 0.15), transparent 25%); z-index: -1; }
+        
+        .editor-panel, .preview-panel { background-color: rgba(30, 30, 45, 0.85); backdrop-filter: blur(10px); padding: 25px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8); border: 1px solid rgba(255, 255, 255, 0.05); z-index: 1; }
+        .editor-panel { width: 45%; display: flex; flex-direction: column; overflow-y: auto; }
+        .preview-panel { width: 55%; display: flex; flex-direction: column; position: relative; }
+        
+        .editor-panel::-webkit-scrollbar { width: 8px; }
+        .editor-panel::-webkit-scrollbar-thumb { background: #4b4b6a; border-radius: 4px; }
+        
+        h1 { color: #a29bfe; font-weight: 800; font-size: 26px; margin: 0 0 5px 0; text-align: center; text-transform: uppercase; letter-spacing: 2px;}
+        .subtitle { text-align: center; color: #8e8eaf; font-size: 12px; margin-bottom: 20px; letter-spacing: 0.5px;}
+        h3 { color: #d0cfff; font-size: 15px; margin-bottom: 12px; border-bottom: 1px solid #4b4b6a; padding-bottom: 5px; margin-top: 25px; text-transform: uppercase; letter-spacing: 1px;}
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 12px; color: #b5b5c3; text-transform: uppercase;}
+        input[type="text"], input[type="url"], input[type="number"], select, textarea { width: 100%; padding: 10px 15px; border-radius: 10px; border: 1px solid #4b4b6a; background-color: #272738; color: #fff; box-sizing: border-box; font-family: 'Poppins', sans-serif; font-size: 13px; transition: 0.3s; }
+        input[type="text"]:focus, input[type="url"]:focus, select:focus, textarea:focus { border-color: #a29bfe; outline: none; box-shadow: 0 0 10px rgba(162, 155, 254, 0.2); }
+        input[type="color"] { padding: 0; border: none; width: 100%; height: 36px; border-radius: 8px; cursor: pointer; background: transparent; }
+        textarea { resize: vertical; min-height: 100px; white-space: pre; }
+        
+        .flex-row { display: flex; gap: 15px; align-items: flex-start; margin-bottom: 10px; flex-wrap: wrap; }
+        .flex-col { flex: 1; min-width: 120px; }
+        
+        .checkbox-label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13px; text-transform: none; color: #fff;}
+        .checkbox-label input { width: 18px; height: 18px; cursor: pointer; accent-color: #a29bfe;}
+
+        #previewFrame { width: 100%; flex: 1; border: 2px dashed #4b4b6a; border-radius: 15px; background-color: #2a2a35;}
+        
+        button.gen-btn { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 800; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4); margin-top: 20px;}
+        button.gen-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(108, 92, 231, 0.6); }
+        
+        #generated-code { height: 60px; margin-top: 10px; background: #1a1a24; border-color: #4b4b6a; color: #4ae38c; font-family: monospace; font-size: 11px;}
+        .hint { font-size: 11px; color: #8e8eaf; margin-top: 4px; line-height: 1.3;}
+    </style>
+</head>
+<body>
+
+    <div class="editor-panel">
+        <h1>Jump Quiz</h1>
+        <div class="subtitle">Alina Pogudina 2026 @ELT_workshop</div>
+        
+        <div class="flex-row">
+            <div class="form-group flex-col">
+                <label>Язык интерфейса</label>
+                <select id="uiLang" onchange="debounceGenerate()">
+                    <option value="EN">English</option>
+                    <option value="RU">Русский</option>
+                    <option value="ES">Español</option>
+                    <option value="FR">Français</option>
+                    <option value="DE">Deutsch</option>
+                    <option value="IT">Italiano</option>
+                </select>
+            </div>
+            <div class="form-group flex-col" style="flex:2">
+                <label>Название игры</label>
+                <input type="text" id="gameTitle" value="JUMP QUIZ!" oninput="debounceGenerate()">
+            </div>
+        </div>
+
+        <h3>Графика и Звуки</h3>
+        <div class="flex-row">
+            <div class="form-group flex-col"><label>Фон (Картинка)</label><input type="url" id="imgBg" value="https://i.postimg.cc/3R2tCYQK/2052ff5dcac5049d621d5d0a2bba92fe-269fd2de-2d39-473e-b0e6-fe5326b0ee97.jpg" oninput="debounceGenerate()"></div>
+            <div class="form-group flex-col"><label>Персонаж</label><input type="url" id="imgChar" value="https://i.postimg.cc/zDbzNQwT/pngwing-com22.png" oninput="debounceGenerate()"></div>
+        </div>
+        <div class="flex-row">
+            <div class="form-group flex-col"><label>Платформа</label><input type="url" id="imgPlat" value="https://i.postimg.cc/90FyRhWX/floating-island-with-grass-and-rocky-edges-cartoon-illustration-vector-removebg-preview.png" oninput="debounceGenerate()"></div>
+            <div class="form-group flex-col"><label>Иконка жизней</label><input type="url" id="imgLife" value="https://i.postimg.cc/pLDyHSvH/pngwing-com4.png" oninput="debounceGenerate()"></div>
+        </div>
+        
+        <div class="flex-row">
+            <div class="form-group flex-col">
+                <label>Звук прыжка</label>
+                <input type="url" id="audioJump" value="https://files.catbox.moe/e7svdw.mp3" oninput="debounceGenerate()">
+            </div>
+            <div class="form-group flex-col">
+                <label>Звук падения</label>
+                <input type="url" id="audioFall" value="https://files.catbox.moe/7tt56a.mp3" oninput="debounceGenerate()">
+            </div>
+        </div>
+        <div class="flex-row">
+            <div class="form-group flex-col">
+                <label>Звук верного ответа</label>
+                <input type="url" id="audioCorrect" value="https://files.catbox.moe/l6z61z.mp3" oninput="debounceGenerate()">
+            </div>
+            <div class="form-group flex-col">
+                <label>Звук победы (финал)</label>
+                <input type="url" id="audioFinalWin" value="https://files.catbox.moe/8jacx9.mp3" oninput="debounceGenerate()">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Фоновая музыка</label>
+            <input type="url" id="audioBg" value="https://files.catbox.moe/k3bx7z.mp3" oninput="debounceGenerate()">
+        </div>
+
+        <!-- НАСТРОЙКИ ТАЙМЕРА И ПАУЗЫ -->
+        <div class="form-group" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;">
+            <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                <label class="checkbox-label" style="margin: 0;">
+                    <input type="checkbox" id="useTimer" onchange="debounceGenerate()"> Таймер на вопрос (сек)
+                </label>
+                <input type="number" id="timerSec" value="30" style="width: 80px;" oninput="debounceGenerate()">
+                
+                <label class="checkbox-label" style="margin: 0;">
+                    <input type="checkbox" id="allowPause" checked onchange="debounceGenerate()"> Кнопка Паузы
+                </label>
+            </div>
+        </div>
+
+        <h3>Шрифты и Цвета</h3>
+        <div class="flex-row">
+            <div class="form-group flex-col">
+                <label>Шрифт Вопроса</label>
+                <select id="qFont" onchange="debounceGenerate()">
+                    <option value="'Montserrat', sans-serif">Montserrat</option>
+                    <option value="'Russo One', sans-serif">Russo One</option>
+                    <option value="'Comfortaa', sans-serif">Comfortaa</option>
+                    <option value="'Jura', sans-serif">Jura</option>
+                    <option value="'Kurale', serif">Kurale (Сказочный)</option>
+                    <option value="'Caveat', cursive">Caveat (Рукописный)</option>
+                    <option value="'Neucha', cursive">Neucha (Игривый рус)</option>
+                    <option value="'Amatic SC', cursive">Amatic SC (Узкий)</option>
+                    <option value="'Oswald', sans-serif">Oswald (Строгий)</option>
+                    <option value="'Rubik', sans-serif">Rubik (Четкий)</option>
+                    <option value="'Bad Script', cursive">Bad Script (Письмо рус)</option>
+                    <option value="'Pacifico', cursive">Pacifico (Винтаж)</option>
+                    <option value="'Lobster', cursive">Lobster</option>
+                    <option value="'Alice', serif">Alice (Книжный рус)</option>
+                </select>
+            </div>
+            <div class="form-group flex-col">
+                <label>Шрифт Ответов</label>
+                <select id="aFont" onchange="debounceGenerate()">
+                    <option value="'Montserrat', sans-serif">Montserrat</option>
+                    <option value="'Roboto', sans-serif">Roboto</option>
+                    <option value="'Jura', sans-serif">Jura</option>
+                    <option value="'Russo One', sans-serif">Russo One</option>
+                    <option value="'Oswald', sans-serif">Oswald</option>
+                    <option value="'Rubik', sans-serif">Rubik</option>
+                    <option value="'Caveat', cursive">Caveat (Рукописный)</option>
+                    <option value="'Bad Script', cursive">Bad Script (Рукописный рус)</option>
+                    <option value="'Alice', serif">Alice</option>
+                </select>
+            </div>
+        </div>
+        <div class="flex-row">
+            <div class="form-group flex-col"><label>Цвет Вопроса</label><input type="color" id="qColor" value="#ffffff" onchange="debounceGenerate()"></div>
+            <div class="form-group flex-col"><label>Цвет Ответов</label><input type="color" id="aColor" value="#ffffff" onchange="debounceGenerate()"></div>
+        </div>
+
+        <h3>Вопросы и Ответы</h3>
+        <div class="flex-row">
+            <div class="form-group flex-col">
+                <label>ВОПРОСЫ (Столбик)</label>
+                <textarea id="qList" rows="6" oninput="debounceGenerate()">I ___ to the cinema yesterday.
+She has already ___ her homework.
+They ___ playing football now.</textarea>
+            </div>
+            <div class="form-group flex-col" style="flex: 1.5;">
+                <label>ОТВЕТЫ (Прав | Неправ | Неправ)</label>
+                <textarea id="aList" rows="6" oninput="debounceGenerate()">went | go | gone | going
+done | did | do | doing
+are | is | am | be</textarea>
+            </div>
+        </div>
+        <div class="hint">От 2 до 4 вариантов ответа. Первый ответ всегда правильный. Платформы генерируются случайно.</div>
+
+        <h3>Финальные экраны</h3>
+        <div class="flex-row">
+            <div class="form-group flex-col"><label>Картинка Победы</label><input type="url" id="imgWin" value="https://i.postimg.cc/nzMdsgnM/pngwing-com.png" oninput="debounceGenerate()"></div>
+            <div class="form-group flex-col"><label>Текст Победы</label><input type="text" id="winText" value="YOU REACHED THE TOP!" oninput="debounceGenerate()"></div>
+        </div>
+        <div class="flex-row">
+            <div class="form-group flex-col"><label>Картинка Проигрыша</label><input type="url" id="imgLose" value="https://i.postimg.cc/y8ZsRp84/9777c20df798888ccb61cdd361c53021-7c141f14-7f5e-4fcb-b0a5-a0ad5ec6c9ba-removebg-preview.png" oninput="debounceGenerate()"></div>
+            <div class="form-group flex-col"><label>Текст Проигрыша</label><input type="text" id="loseText" value="GAME OVER!" oninput="debounceGenerate()"></div>
+        </div>
+
+        <button class="gen-btn" id="copyBtn" onclick="copyCode()">СГЕНЕРИРОВАТЬ IFRAME-КОД</button>
+        <textarea id="generated-code" readonly placeholder="Ваш код появится здесь..."></textarea>
+    </div>
+
+    <div class="preview-panel">
+        <h2 style="color: #fff; margin-top:0; font-size: 20px;">Предпросмотр</h2>
+        <iframe id="previewFrame" src="" frameborder="0" allow="autoplay"></iframe>
+    </div>
+
+    <script>
+        function getInputs() {
+            let qLines = document.getElementById('qList').value.split('\n').map(s=>s.trim()).filter(s=>s);
+            let aLines = document.getElementById('aList').value.split('\n').map(s=>s.trim()).filter(s=>s);
+            let tasks = [];
+            let count = Math.min(qLines.length, aLines.length, 30);
+            for(let i=0; i<count; i++) {
+                let opts = aLines[i].split('|').map(o => o.trim()).filter(o => o !== '');
+                if(opts.length > 1) {
+                    tasks.push({ q: qLines[i], correct: opts[0], wrongs: opts.slice(1, 4) });
+                }
+            }
+            if(tasks.length === 0) tasks = [{q: "No tasks configured", correct: "Yes", wrongs: ["No"]}];
+
+            return {
+                lang: document.getElementById('uiLang').value,
+                title: document.getElementById('gameTitle').value,
+                qFont: document.getElementById('qFont').value,
+                aFont: document.getElementById('aFont').value,
+                qColor: document.getElementById('qColor').value,
+                aColor: document.getElementById('aColor').value,
+                imgBg: document.getElementById('imgBg').value,
+                imgChar: document.getElementById('imgChar').value,
+                imgPlat: document.getElementById('imgPlat').value,
+                imgLife: document.getElementById('imgLife').value,
+                imgWin: document.getElementById('imgWin').value,
+                imgLose: document.getElementById('imgLose').value,
+                audioBg: document.getElementById('audioBg').value,
+                audioJump: document.getElementById('audioJump').value,
+                audioFall: document.getElementById('audioFall').value,
+                audioCorrect: document.getElementById('audioCorrect').value,
+                audioFinalWin: document.getElementById('audioFinalWin').value,
+                useTimer: document.getElementById('useTimer').checked,
+                allowPause: document.getElementById('allowPause').checked,
+                timerSec: parseInt(document.getElementById('timerSec').value) || 30,
+                winText: document.getElementById('winText').value,
+                loseText: document.getElementById('loseText').value,
+                tasks: tasks
+            };
+        }
+
+        function generateCode() {
+            const conf = getInputs();
+
+            const innerHTML = `<!DOCTYPE html>
+<html lang="${conf.lang.toLowerCase()}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Alice&family=Amatic+SC:wght@700&family=Bad+Script&family=Caveat:wght@700&family=Comfortaa:wght@700&family=Jura:wght@700&family=Kurale&family=Lobster&family=Montserrat:wght@600;800&family=Neucha&family=Oswald:wght@500;700&family=Pacifico&family=Roboto:wght@500;700&family=Rubik:wght@500;700&family=Russo+One&display=swap');
+    
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; touch-action: none; font-family: 'Montserrat', sans-serif;}
+    * { box-sizing: border-box !important; -webkit-tap-highlight-color: transparent;}
+    
+    /* ДВИЖУЩИЙСЯ ФОН */
+    #game-bg { position: absolute; inset: 0; width: 100%; height: 100%; background: url('${conf.imgBg}') bottom center/cover no-repeat; z-index: 0; transition: background-position-y 0.8s ease-in-out; }
+    
+    /* КОНТЕЙНЕР УРОВНЯ (камера) */
+    #world-container { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 10;}
+
+    /* UI TOP BAR */
+    #ui-bar { position: absolute; top: 0; left: 0; right: 0; padding: 15px 20px; display: flex; justify-content: space-between; align-items: flex-start; z-index: 50;}
+    .lives-box { display: flex; gap: 8px; }
+    .life-icon { width: 35px; height: 35px; background: url('${conf.imgLife}') center/contain no-repeat; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); transition: 0.3s;}
+    .life-icon.lost { opacity: 0; transform: scale(0.2); }
+    
+    .right-controls { display: flex; gap: 15px; align-items: flex-start; }
+    .buttons-col { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+    .timer-box { font-size: 26px; font-weight: 800; color: #fff; text-shadow: 0 0 10px #000, 0 2px 5px #000; display: ${conf.useTimer ? 'block' : 'none'}; line-height: 40px; margin-top: -2px;}
+    
+    .control-btn { background: rgba(0,0,0,0.5); border: 2px solid #fff; color: #fff; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; transition: 0.2s;}
+    #btn-pause { display: ${conf.useTimer && conf.allowPause ? 'flex' : 'none'}; font-size: 14px; }
+    
+    /* ВОПРОС */
+    #question-banner { position: absolute; top: 5%; left: 50%; transform: translateX(-50%); width: 90%; max-width: 650px; background: rgba(0,0,0,0.7); border: 3px solid rgba(255,255,255,0.2); border-radius: 25px; padding: 15px 30px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 40; transition: 0.5s; backdrop-filter: blur(3px);}
+    #question-banner.hidden { opacity: 0; transform: translate(-50%, -20px); pointer-events: none; }
+    #question-text { font-family: ${conf.qFont} !important; color: ${conf.qColor} !important; font-size: clamp(18px, 3.5vw, 26px) !important; text-shadow: 0 2px 5px rgba(0,0,0,0.8) !important; line-height: 1.3 !important;}
+
+    /* ПЛАТФОРМЫ И ТЕКСТЫ */
+    #platforms-layer { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity 0.3s;}
+    
+    .platform-wrap { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; transform: translateX(-50%); cursor: pointer; width: 140px; z-index: 20;}
+    
+    .platform-text { font-family: ${conf.aFont} !important; color: ${conf.aColor} !important; font-size: 18px !important; font-weight: 800 !important; background: rgba(0,0,0,0.65); border: 2px solid rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; margin-bottom: -5px; text-align: center; z-index: 22; pointer-events: none; transition: 0.2s; white-space: nowrap; box-shadow: 0 4px 10px rgba(0,0,0,0.5);}
+    
+    .platform-img { width: 130px; height: 60px; background: url('${conf.imgPlat}') center/contain no-repeat; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.4)); transition: 0.2s; z-index: 21;}
+    
+    .platform-wrap:hover .platform-img { transform: scale(1.05); filter: drop-shadow(0 15px 15px rgba(0,0,0,0.6));}
+    
+    /* Подсветка ответов */
+    .platform-text.correct-ans { color: #2ecc71 !important; text-shadow: 0 0 10px #2ecc71 !important; border-color: #2ecc71 !important; box-shadow: 0 0 15px rgba(46, 204, 113, 0.5) !important; transform: scale(1.1);}
+    .platform-text.wrong-ans { color: #ff4757 !important; text-shadow: 0 0 10px #ff4757 !important; border-color: #ff4757 !important; box-shadow: 0 0 15px rgba(255, 71, 87, 0.5) !important; transform: scale(1.1);}
+
+    /* ПЕРСОНАЖ */
+    #character { 
+        position: absolute; left: 50%; width: 70px; height: 90px; 
+        background: url('${conf.imgChar}') center/contain no-repeat; 
+        z-index: 30; margin-left: -35px; 
+        filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+        --dir: 1; 
+    }
+    
+    /* Состояния анимации */
+    .state-idle { 
+        transition: bottom 0.5s cubic-bezier(0.25, 1, 0.5, 1), left 0.5s linear, transform 0.2s; 
+        transform: scaleX(var(--dir)); 
+        opacity: 1;
+    }
+    .state-cam-drop { 
+        transition: bottom 0.8s ease-in-out; 
+        transform: scaleX(var(--dir)); 
+        opacity: 1;
+    }
+    .state-fall { 
+        transition: bottom 1s cubic-bezier(0.55, 0.085, 0.68, 0.53), transform 1s ease-in, opacity 1s ease-in; 
+        transform: scaleX(var(--dir)) rotate(720deg) scale(0.2); 
+        opacity: 0; 
+    }
+
+    /* ЭКРАНЫ */
+    .elt-screen { position: absolute !important; inset: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding: 20px !important; z-index: 1000 !important; transition: opacity 0.5s !important;}
+    #screen-start { background: rgba(0,0,0,0.7) !important; backdrop-filter: blur(5px); }
+    #screen-win { background: rgba(0,0,0,0.85) !important; }
+    #screen-over { background: rgba(20,0,0,0.9) !important; }
+    .elt-hidden { display: none !important; opacity: 0 !important; pointer-events: none !important;}
+
+    .screen-img { width: 280px; height: 280px; object-fit: contain; margin-bottom: 25px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6)); }
+    .win-img { animation: floatImg 3s ease-in-out infinite; }
+    .lose-img { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: drop-shadow(0 0 30px rgba(229,9,20,0.8)); }
+
+    @keyframes floatImg { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+    @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+    .elt-title-huge { color: #fff !important; font-weight: 800; font-size: clamp(35px, 6vw, 65px); padding: 20px 40px !important; border-radius: 20px; border: 4px solid #fff; margin-bottom: 40px !important; box-shadow: 0 0 30px rgba(255,255,255,0.5); text-align: center; background: rgba(0,0,0,0.5); text-transform: uppercase;}
+    .elt-btn-huge { background-color: #2ecc71 !important; color: #fff !important; font-family: 'Montserrat', sans-serif !important; font-weight: 900 !important; font-size: 28px !important; padding: 15px 50px !important; border: 3px solid #fff !important; border-radius: 30px !important; cursor: pointer !important; transition: 0.3s !important; box-shadow: 0 5px 20px rgba(0,0,0,0.8) !important; z-index: 10;}
+    .elt-btn-huge:hover { transform: scale(1.1) !important; background-color: #fff !important; color: #000 !important;}
+    
+    .screen-msg { color: #fff; font-size: clamp(30px, 5vw, 50px); font-weight: 900; margin-bottom: 40px; text-align: center; text-transform: uppercase; z-index: 10;}
+    #screen-win .screen-msg { color: #ffd700; text-shadow: 0 0 20px #ffd700;}
+    #screen-over .screen-msg { color: #ff4757; text-shadow: 0 0 20px #ff4757;}
+</style>
+</head>
+<body>
+
+<div id="game-bg"></div>
+
+<div id="world-container">
+    <div id="ui-bar">
+        <div class="lives-box" id="lives-box">
+            <div class="life-icon"></div><div class="life-icon"></div><div class="life-icon"></div>
+        </div>
+        
+        <div class="right-controls">
+            <div class="timer-box" id="timer">00:00</div>
+            <div class="buttons-col">
+                <div class="control-btn" id="btn-audio">🔊</div>
+                <div class="control-btn" id="btn-pause">⏸️</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="question-banner"><div id="question-text">Question</div></div>
+    
+    <div id="platforms-layer"></div>
+    
+    <div id="character" class="state-idle" style="bottom: 2%;"></div>
+</div>
+
+<!-- SCREENS -->
+<div id="screen-start" class="elt-screen">
+    <div class="elt-title-huge">${conf.title}</div>
+    <button class="elt-btn-huge" id="btn-start">JUMP IN!</button>
+</div>
+
+<div id="screen-over" class="elt-screen elt-hidden">
+    <img src="${conf.imgLose}" class="screen-img lose-img">
+    <div class="screen-msg">${conf.loseText}</div>
+    <button class="elt-btn-huge" id="btn-try" style="background: #ff4757 !important;">RESTART</button>
+</div>
+
+<div id="screen-win" class="elt-screen elt-hidden">
+    <img src="${conf.imgWin}" class="screen-img win-img">
+    <div class="screen-msg">${conf.winText}</div>
+    <button class="elt-btn-huge" id="btn-win-restart">PLAY AGAIN</button>
+</div>
+
+<script>
+(function(){
+    const dict = { EN: { start: "START", restart: "PLAY AGAIN" }, RU: { start: "ИГРАТЬ", restart: "ЗАНОВО" }, ES: { start: "JUGAR", restart: "REINICIAR" }, FR: { start: "JOUER", restart: "REJOUER" }, DE: { start: "START", restart: "NEUSTART" }, IT: { start: "INIZIA", restart: "RIPROVA" } };
+    const lang = dict['${conf.lang}'] || dict['EN'];
+    document.getElementById('btn-start').innerText = lang.start;
+    document.getElementById('btn-win-restart').innerText = lang.restart;
+    document.getElementById('btn-try').innerText = lang.restart;
+
+    const TASKS = ${JSON.stringify(conf.tasks)};
+    const USE_TIMER = ${conf.useTimer};
+    const TIME_LIMIT = ${conf.timerSec};
+    
+    let currentLvl = 0;
+    let lives = 3;
+    let timerInt = null;
+    let timeLeft = TIME_LIMIT;
+    let isJumping = false;
+    let isPaused = false;
+    let bgScrollPos = 0;
+    
+    const BASE_BOTTOM = 2; // Высота базы в самом низу экрана
+    let currentBaseLeft = 50; 
+    let currentBaseText = "START";
+
+    // AUDIO
+    const bgMusic = new Audio('${conf.audioBg}'); bgMusic.loop = true; bgMusic.volume = 0.3;
+    const sfxJump = new Audio('${conf.audioJump}'); sfxJump.volume = 0.8;
+    const sfxFall = new Audio('${conf.audioFall}'); sfxFall.volume = 0.8;
+    const sfxCorrect = new Audio('${conf.audioCorrect}'); sfxCorrect.volume = 0.8; 
+    const sfxFinalWin = new Audio('${conf.audioFinalWin}'); sfxFinalWin.volume = 0.9; 
+    let isMuted = false;
+
+    const gameBg = document.getElementById('game-bg');
+    const charEl = document.getElementById('character');
+    const platLayer = document.getElementById('platforms-layer');
+    const qBanner = document.getElementById('question-banner');
+    const qText = document.getElementById('question-text');
+    const livesBox = document.getElementById('lives-box');
+    const timerBox = document.getElementById('timer');
+    const audioBtn = document.getElementById('btn-audio');
+    const pauseBtn = document.getElementById('btn-pause');
+
+    document.getElementById('btn-start').onclick = startGame;
+    document.getElementById('btn-try').onclick = startGame;
+    document.getElementById('btn-win-restart').onclick = startGame;
+    
+    audioBtn.onclick = () => {
+        isMuted = !isMuted;
+        audioBtn.innerText = isMuted ? '🔇' : '🔊';
+        if(isMuted) { bgMusic.pause(); sfxFinalWin.pause(); } 
+        else { 
+            if(document.getElementById('screen-win').classList.contains('elt-hidden')) bgMusic.play(); 
+        }
+    };
+
+    pauseBtn.onclick = () => {
+        if(!USE_TIMER || isJumping) return;
+        isPaused = !isPaused;
+        pauseBtn.innerText = isPaused ? '▶️' : '⏸️';
+        
+        // Анти-чит: скрываем вопросы и платформы на паузе
+        if(isPaused) {
+            platLayer.style.opacity = '0';
+            platLayer.style.pointerEvents = 'none';
+            qBanner.style.opacity = '0';
+        } else {
+            platLayer.style.opacity = '1';
+            platLayer.style.pointerEvents = 'auto';
+            qBanner.style.opacity = '1';
+        }
+    };
+
+    function startGame() {
+        document.querySelectorAll('.elt-screen').forEach(el => el.classList.add('elt-hidden'));
+        currentLvl = 0;
+        lives = 3;
+        isJumping = false;
+        isPaused = false;
+        bgScrollPos = 0;
+        currentBaseLeft = 50;
+        currentBaseText = "START";
+        
+        gameBg.style.backgroundPositionY = '0%';
+        charEl.style.setProperty('--dir', 1);
+        
+        if(pauseBtn) pauseBtn.innerText = '⏸️';
+        platLayer.style.opacity = '1';
+        platLayer.style.pointerEvents = 'auto';
+        qBanner.style.opacity = '1';
+
+        updateLives();
+        sfxFinalWin.pause();
+        sfxFinalWin.currentTime = 0;
+        
+        if(!isMuted) bgMusic.play().catch(e=>console.log("Auto-play blocked"));
+        
+        loadLevel(true);
+    }
+
+    function startLevelTimer() {
+        if(!USE_TIMER) return;
+        timeLeft = TIME_LIMIT;
+        updateTimerDisplay();
+        clearInterval(timerInt);
+        timerInt = setInterval(tickTimer, 1000);
+    }
+
+    function tickTimer() {
+        if(isPaused) return; // Таймер стоит на месте при паузе
+        timeLeft--;
+        updateTimerDisplay();
+        if(timeLeft <= 0) {
+            clearInterval(timerInt);
+            triggerTimeOut();
+        }
+    }
+
+    function updateTimerDisplay() {
+        let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        let s = (timeLeft % 60).toString().padStart(2, '0');
+        timerBox.innerText = m + ':' + s;
+        timerBox.style.color = timeLeft <= 10 ? '#ff4757' : '#fff';
+    }
+
+    function updateLives() {
+        let icons = livesBox.children;
+        for(let i=0; i<3; i++) {
+            if(i < lives) icons[i].classList.remove('lost');
+            else icons[i].classList.add('lost');
+        }
+    }
+
+    function resetCharacterToBase() {
+        charEl.className = 'state-idle';
+        charEl.style.transition = 'none';
+        charEl.style.bottom = (BASE_BOTTOM + 7) + '%'; 
+        charEl.style.left = currentBaseLeft + '%';
+        
+        void charEl.offsetWidth; // Force repaint
+        
+        charEl.style.transition = ''; 
+    }
+
+    function loadLevel(isFirstLevel) {
+        if(currentLvl >= TASKS.length) { winGame(); return; }
+        
+        let task = TASKS[currentLvl];
+        qText.innerText = task.q;
+        qBanner.classList.remove('hidden');
+        
+        platLayer.style.transition = 'none';
+        platLayer.style.transform = 'translateY(0)';
+        platLayer.innerHTML = '';
+        
+        // Базовая платформа
+        let startPlat = createPlatform(currentBaseText, true, currentBaseLeft, BASE_BOTTOM);
+        if(isFirstLevel) {
+            startPlat.querySelector('.platform-text').style.opacity = '0'; 
+        } else {
+            startPlat.querySelector('.platform-text').classList.add('correct-ans');
+        }
+        startPlat.style.pointerEvents = 'none'; 
+        platLayer.appendChild(startPlat);
+        
+        if(isFirstLevel) resetCharacterToBase();
+        
+        let options = [{t: task.correct, c: true}];
+        task.wrongs.forEach(w => options.push({t: w, c: false}));
+        options.sort(() => Math.random() - 0.5);
+        
+        let colWidth = 100 / options.length;
+        
+        options.forEach((opt, idx) => {
+            let rx = (idx * colWidth) + (Math.random() * (colWidth - 25)) + 12;
+            let ry = 20 + Math.random() * 30; // Высота от 20% до 50%
+            
+            let pWrap = createPlatform(opt.t, opt.c, rx, ry);
+            pWrap.onclick = () => performJump(pWrap, opt.c, rx, ry, opt.t);
+            platLayer.appendChild(pWrap);
+        });
+        
+        startLevelTimer();
+    }
+
+    function createPlatform(text, isCorrect, x, y) {
+        let pWrap = document.createElement('div');
+        pWrap.className = 'platform-wrap';
+        pWrap.dataset.correct = isCorrect;
+        pWrap.style.left = x + '%';
+        pWrap.style.bottom = y + '%';
+        
+        let pText = document.createElement('div');
+        pText.className = 'platform-text';
+        pText.innerText = text;
+        
+        let pImg = document.createElement('div');
+        pImg.className = 'platform-img';
+        
+        pWrap.appendChild(pText);
+        pWrap.appendChild(pImg);
+        return pWrap;
+    }
+
+    function triggerTimeOut() {
+        if(isJumping || isPaused) return;
+        isJumping = true;
+        
+        if(!isMuted) { sfxFall.currentTime = 0; sfxFall.play(); }
+        
+        charEl.className = 'state-fall';
+        charEl.style.bottom = '-30%'; 
+        
+        lives--;
+        updateLives();
+        
+        setTimeout(() => {
+            if(lives <= 0) gameOver();
+            else {
+                resetCharacterToBase();
+                isJumping = false;
+                startLevelTimer(); // Таймер запускается заново для повторной попытки
+            }
+        }, 1000); 
+    }
+
+    function performJump(targetPlat, isCorrect, targetX, targetY, platText) {
+        if(isJumping || isPaused) return;
+        isJumping = true;
+        clearInterval(timerInt); // Ставим таймер на стоп во время прыжка
+        
+        let charX = parseFloat(charEl.style.left) || 50;
+        
+        if(targetX < charX) charEl.style.setProperty('--dir', -1);
+        else charEl.style.setProperty('--dir', 1);
+
+        if(!isMuted) { sfxJump.currentTime = 0; sfxJump.play(); }
+
+        // Прыжок 
+        charEl.className = 'state-idle';
+        charEl.style.bottom = (targetY + 7) + '%';
+        charEl.style.left = targetX + '%';
+
+        setTimeout(() => {
+            let txtEl = targetPlat.querySelector('.platform-text');
+            
+            if(isCorrect) {
+                txtEl.classList.add('correct-ans');
+                currentBaseText = platText; 
+                
+                if(!isMuted) { sfxCorrect.currentTime = 0; sfxCorrect.play(); }
+                
+                setTimeout(() => {
+                    qBanner.classList.add('hidden');
+                    
+                    let dropDist = targetY - BASE_BOTTOM; 
+                    
+                    platLayer.style.transition = 'transform 0.8s ease-in-out';
+                    platLayer.style.transform = \`translateY(\${dropDist}vh)\`;
+                    
+                    charEl.className = 'state-cam-drop';
+                    charEl.style.bottom = (BASE_BOTTOM + 7) + '%';
+                    
+                    bgScrollPos += dropDist * 0.4; 
+                    gameBg.style.backgroundPositionY = bgScrollPos + '%';
+                    
+                    setTimeout(() => {
+                        currentBaseLeft = targetX; 
+                        currentLvl++;
+                        charEl.className = 'state-idle'; 
+                        loadLevel(false); 
+                        isJumping = false;
+                    }, 850);
+
+                }, 1000);
+            } else {
+                txtEl.classList.add('wrong-ans');
+                
+                if(!isMuted) { sfxFall.currentTime = 0; sfxFall.play(); }
+                
+                setTimeout(() => {
+                    charEl.className = 'state-fall';
+                    charEl.style.bottom = '-30%'; 
+                    
+                    lives--;
+                    updateLives();
+                    
+                    setTimeout(() => {
+                        if(lives <= 0) gameOver();
+                        else {
+                            resetCharacterToBase();
+                            txtEl.classList.remove('wrong-ans');
+                            isJumping = false;
+                            startLevelTimer(); // Таймер запускается заново для повторной попытки
+                        }
+                    }, 1000); 
+                }, 300); // Быстрое падение
+            }
+        }, 500); 
+    }
+
+    function gameOver() {
+        clearInterval(timerInt);
+        document.getElementById('screen-over').classList.remove('elt-hidden');
+    }
+
+    function winGame() {
+        clearInterval(timerInt);
+        bgMusic.pause();
+        if(!isMuted) { sfxFinalWin.currentTime = 0; sfxFinalWin.play(); }
+        document.getElementById('screen-win').classList.remove('elt-hidden');
+    }
+})();
+<\/script>
+</body>
+</html>`;
+
+            const escapedHTML = innerHTML.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+            const iframeCode = `<iframe style="width: 100%; height: 100%; border: none; background: transparent;" allowtransparency="true" srcdoc="${escapedHTML}"></iframe>`;
+
+            document.getElementById('generated-code').value = iframeCode;
+            document.getElementById('previewFrame').srcdoc = innerHTML;
+        }
+
+        function copyCode() {
+            generateCode(); 
+            const codeArea = document.getElementById('generated-code');
+            codeArea.select();
+            document.execCommand('copy');
+            const btn = document.getElementById('copyBtn');
+            btn.innerText = 'СКОПИРОВАНО!';
+            btn.style.background = '#2ecc71';
+            setTimeout(() => { 
+                btn.innerText = 'СГЕНЕРИРОВАТЬ IFRAME-КОД'; 
+                btn.style.background = 'linear-gradient(135deg, #6c5ce7, #a29bfe)';
+            }, 2000);
+        }
+
+        let previewTimeout;
+        function debounceGenerate() {
+            clearTimeout(previewTimeout);
+            previewTimeout = setTimeout(generateCode, 800);
+        }
+
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            el.addEventListener('input', debounceGenerate);
+            el.addEventListener('change', debounceGenerate);
+        });
+
+        debounceGenerate();
+    </script>
+</body>
+</html>
