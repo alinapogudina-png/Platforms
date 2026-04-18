@@ -157,6 +157,21 @@
             <div class="form-group flex-col"><label>Цвет Вопроса</label><input type="color" id="qColor" value="#ffffff" onchange="debounceGenerate()"></div>
             <div class="form-group flex-col"><label>Цвет Ответов</label><input type="color" id="aColor" value="#ffffff" onchange="debounceGenerate()"></div>
         </div>
+        <div class="flex-row">
+            <div class="form-group flex-col"><label>Цвет Кнопок</label><input type="color" id="btnColor" value="#2ecc71" onchange="debounceGenerate()"></div>
+            <div class="form-group flex-col" style="flex:2"><label>Картинка Кнопки (Опционально)</label><input type="url" id="imgBtn" value="" placeholder="Если указана, пропорции сохранятся" oninput="debounceGenerate()"></div>
+        </div>
+        <div class="flex-row" style="align-items: center; background: rgba(0,0,0,0.2); padding: 10px 15px; border-radius: 10px; margin-bottom: 15px;">
+            <div class="form-group flex-col" style="flex: 2; margin-bottom: 0;">
+                <label class="checkbox-label" style="margin: 0;">
+                    <input type="checkbox" id="useNeon" checked onchange="debounceGenerate()"> Неоновая подсветка кнопок ответов
+                </label>
+            </div>
+            <div class="form-group flex-col" style="margin-bottom: 0;">
+                <label style="margin-bottom: 2px;">Цвет Неона</label>
+                <input type="color" id="neonColor" value="#a29bfe" onchange="debounceGenerate()">
+            </div>
+        </div>
 
         <h3>Вопросы и Ответы</h3>
         <div class="flex-row">
@@ -215,6 +230,10 @@ are | is | am | be</textarea>
                 aFont: document.getElementById('aFont').value,
                 qColor: document.getElementById('qColor').value,
                 aColor: document.getElementById('aColor').value,
+                btnColor: document.getElementById('btnColor').value,
+                imgBtn: document.getElementById('imgBtn').value,
+                useNeon: document.getElementById('useNeon').checked,
+                neonColor: document.getElementById('neonColor').value,
                 imgBg: document.getElementById('imgBg').value,
                 imgChar: document.getElementById('imgChar').value,
                 imgPlat: document.getElementById('imgPlat').value,
@@ -263,6 +282,9 @@ are | is | am | be</textarea>
     
     .right-controls { display: flex; gap: 15px; align-items: flex-start; }
     .buttons-col { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+    
+    /* СЧЕТЧИК И ТАЙМЕР */
+    .counter-box { font-size: 22px; font-weight: 800; color: #fff; text-shadow: 0 0 10px #000, 0 2px 5px #000; line-height: 40px; margin-top: -2px;}
     .timer-box { font-size: 26px; font-weight: 800; color: #fff; text-shadow: 0 0 10px #000, 0 2px 5px #000; display: ${conf.useTimer ? 'block' : 'none'}; line-height: 40px; margin-top: -2px;}
     
     .control-btn { background: rgba(0,0,0,0.5); border: 2px solid #fff; color: #fff; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; transition: 0.2s;}
@@ -284,9 +306,22 @@ are | is | am | be</textarea>
     
     .platform-wrap:hover .platform-img { transform: scale(1.05); filter: drop-shadow(0 15px 15px rgba(0,0,0,0.6));}
     
-    /* Подсветка ответов */
-    .platform-text.correct-ans { color: #2ecc71 !important; text-shadow: 0 0 10px #2ecc71 !important; border-color: #2ecc71 !important; box-shadow: 0 0 15px rgba(46, 204, 113, 0.5) !important; transform: scale(1.1);}
-    .platform-text.wrong-ans { color: #ff4757 !important; text-shadow: 0 0 10px #ff4757 !important; border-color: #ff4757 !important; box-shadow: 0 0 15px rgba(255, 71, 87, 0.5) !important; transform: scale(1.1);}
+    /* Подсветка ответов (Неон ВКЛ/ВЫКЛ) */
+    ${conf.useNeon ? `
+    /* ПОСТОЯННОЕ НЕОНОВОЕ СВЕЧЕНИЕ ВОКРУГ КНОПОК ОТВЕТОВ */
+    .platform-text {
+        border-color: ${conf.neonColor} !important;
+        box-shadow: 0 0 15px ${conf.neonColor}, inset 0 0 8px ${conf.neonColor} !important;
+        text-shadow: 0 0 5px ${conf.neonColor} !important;
+    }
+    /* ЦВЕТ МЕНЯЕТСЯ ПРИ ВЫБОРЕ */
+    .platform-text.correct-ans { color: #2ecc71 !important; text-shadow: 0 0 10px #2ecc71 !important; border-color: #2ecc71 !important; box-shadow: 0 0 20px rgba(46, 204, 113, 0.8), inset 0 0 10px rgba(46, 204, 113, 0.5) !important; transform: scale(1.1);}
+    .platform-text.wrong-ans { color: #ff4757 !important; text-shadow: 0 0 10px #ff4757 !important; border-color: #ff4757 !important; box-shadow: 0 0 20px rgba(255, 71, 87, 0.8), inset 0 0 10px rgba(255, 71, 87, 0.5) !important; transform: scale(1.1);}
+    ` : `
+    /* БЕЗ НЕОНА - ПРОСТО ВЫДЕЛЕНИЕ ПРИ ПРЫЖКЕ */
+    .platform-text.correct-ans { color: #2ecc71 !important; border-color: #2ecc71 !important; transform: scale(1.1); background: rgba(46, 204, 113, 0.2) !important;}
+    .platform-text.wrong-ans { color: #ff4757 !important; border-color: #ff4757 !important; transform: scale(1.1); background: rgba(255, 71, 87, 0.2) !important;}
+    `}
 
     /* ПЕРСОНАЖ */
     #character { 
@@ -325,12 +360,61 @@ are | is | am | be</textarea>
     .win-img { animation: floatImg 3s ease-in-out infinite; }
     .lose-img { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: drop-shadow(0 0 30px rgba(229,9,20,0.8)); }
 
-    @keyframes floatImg { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-    @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
-
-    .elt-title-huge { color: #fff !important; font-weight: 800; font-size: clamp(35px, 6vw, 65px); padding: 20px 40px !important; border-radius: 20px; border: 4px solid #fff; margin-bottom: 40px !important; box-shadow: 0 0 30px rgba(255,255,255,0.5); text-align: center; background: rgba(0,0,0,0.5); text-transform: uppercase;}
-    .elt-btn-huge { background-color: #2ecc71 !important; color: #fff !important; font-family: 'Montserrat', sans-serif !important; font-weight: 900 !important; font-size: 28px !important; padding: 15px 50px !important; border: 3px solid #fff !important; border-radius: 30px !important; cursor: pointer !important; transition: 0.3s !important; box-shadow: 0 5px 20px rgba(0,0,0,0.8) !important; z-index: 10;}
-    .elt-btn-huge:hover { transform: scale(1.1) !important; background-color: #fff !important; color: #000 !important;}
+    /* ЗАГОЛОВОК */
+    .elt-title-huge { 
+        font-family: ${conf.qFont} !important; 
+        color: #fff !important; 
+        font-weight: 800; 
+        font-size: clamp(25px, 4vw, 45px);
+        padding: 15px 30px !important; 
+        border-radius: 20px; 
+        border: 3px solid #fff; 
+        margin-bottom: 40px !important; 
+        box-shadow: 0 0 30px rgba(255,255,255,0.5); 
+        text-align: center; 
+        background: rgba(0,0,0,0.5); 
+        text-transform: uppercase;
+    }
+    
+    /* КНОПКА (ОБНОВЛЕННАЯ ЛОГИКА ДЛЯ КАРТИНОК) */
+    .elt-btn-huge { 
+        font-family: ${conf.qFont} !important; 
+        font-weight: 900 !important; 
+        font-size: clamp(22px, 5vw, 36px) !important; /* АВТО-РАЗМЕР ТЕКСТА */
+        cursor: pointer !important; 
+        transition: 0.3s !important; 
+        z-index: 10;
+        color: #fff !important;
+        text-shadow: 0 2px 5px rgba(0,0,0,0.8) !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        
+        ${conf.imgBtn ? `
+            /* Режим картинки: огромный размер, вписывание картинки целиком (contain) без искажений */
+            background: url('${conf.imgBtn}') center/contain no-repeat !important;
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            width: 350px !important;
+            height: 150px !important;
+            padding: 0 !important;
+        ` : `
+            /* Режим цвета: стандартная кнопка */
+            background: ${conf.btnColor} !important;
+            border: 3px solid #fff !important;
+            border-radius: 30px !important;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.8) !important;
+            min-width: 320px;
+            padding: 20px 60px !important;
+        `}
+    }
+    
+    .elt-btn-huge:hover { 
+        transform: scale(1.1) !important; 
+        ${!conf.imgBtn ? `background: #fff !important; color: #000 !important; text-shadow: none !important;` : `filter: drop-shadow(0 0 15px rgba(255,255,255,0.4));`}
+    }
     
     .screen-msg { color: #fff; font-size: clamp(30px, 5vw, 50px); font-weight: 900; margin-bottom: 40px; text-align: center; text-transform: uppercase; z-index: 10;}
     #screen-win .screen-msg { color: #ffd700; text-shadow: 0 0 20px #ffd700;}
@@ -348,6 +432,7 @@ are | is | am | be</textarea>
         </div>
         
         <div class="right-controls">
+            <div class="counter-box" id="q-counter"></div>
             <div class="timer-box" id="timer">00:00</div>
             <div class="buttons-col">
                 <div class="control-btn" id="btn-audio">🔊</div>
@@ -372,7 +457,7 @@ are | is | am | be</textarea>
 <div id="screen-over" class="elt-screen elt-hidden">
     <img src="${conf.imgLose}" class="screen-img lose-img">
     <div class="screen-msg">${conf.loseText}</div>
-    <button class="elt-btn-huge" id="btn-try" style="background: #ff4757 !important;">RESTART</button>
+    <button class="elt-btn-huge" id="btn-try">RESTART</button>
 </div>
 
 <div id="screen-win" class="elt-screen elt-hidden">
@@ -420,6 +505,7 @@ are | is | am | be</textarea>
     const qText = document.getElementById('question-text');
     const livesBox = document.getElementById('lives-box');
     const timerBox = document.getElementById('timer');
+    const qCounter = document.getElementById('q-counter');
     const audioBtn = document.getElementById('btn-audio');
     const pauseBtn = document.getElementById('btn-pause');
 
@@ -441,7 +527,6 @@ are | is | am | be</textarea>
         isPaused = !isPaused;
         pauseBtn.innerText = isPaused ? '▶️' : '⏸️';
         
-        // Анти-чит: скрываем вопросы и платформы на паузе
         if(isPaused) {
             platLayer.style.opacity = '0';
             platLayer.style.pointerEvents = 'none';
@@ -489,7 +574,7 @@ are | is | am | be</textarea>
     }
 
     function tickTimer() {
-        if(isPaused) return; // Таймер стоит на месте при паузе
+        if(isPaused) return; 
         timeLeft--;
         updateTimerDisplay();
         if(timeLeft <= 0) {
@@ -519,13 +604,16 @@ are | is | am | be</textarea>
         charEl.style.bottom = (BASE_BOTTOM + 7) + '%'; 
         charEl.style.left = currentBaseLeft + '%';
         
-        void charEl.offsetWidth; // Force repaint
+        void charEl.offsetWidth; 
         
         charEl.style.transition = ''; 
     }
 
     function loadLevel(isFirstLevel) {
         if(currentLvl >= TASKS.length) { winGame(); return; }
+        
+        // ОБНОВЛЕНИЕ СЧЕТЧИКА
+        qCounter.innerText = (currentLvl + 1) + ' / ' + TASKS.length;
         
         let task = TASKS[currentLvl];
         qText.innerText = task.q;
@@ -537,11 +625,9 @@ are | is | am | be</textarea>
         
         // Базовая платформа
         let startPlat = createPlatform(currentBaseText, true, currentBaseLeft, BASE_BOTTOM);
-        if(isFirstLevel) {
-            startPlat.querySelector('.platform-text').style.opacity = '0'; 
-        } else {
-            startPlat.querySelector('.platform-text').classList.add('correct-ans');
-        }
+        
+        startPlat.querySelector('.platform-text').style.opacity = '0'; 
+        
         startPlat.style.pointerEvents = 'none'; 
         platLayer.appendChild(startPlat);
         
@@ -555,7 +641,7 @@ are | is | am | be</textarea>
         
         options.forEach((opt, idx) => {
             let rx = (idx * colWidth) + (Math.random() * (colWidth - 25)) + 12;
-            let ry = 20 + Math.random() * 30; // Высота от 20% до 50%
+            let ry = 20 + Math.random() * 30; 
             
             let pWrap = createPlatform(opt.t, opt.c, rx, ry);
             pWrap.onclick = () => performJump(pWrap, opt.c, rx, ry, opt.t);
@@ -601,7 +687,7 @@ are | is | am | be</textarea>
             else {
                 resetCharacterToBase();
                 isJumping = false;
-                startLevelTimer(); // Таймер запускается заново для повторной попытки
+                startLevelTimer(); 
             }
         }, 1000); 
     }
@@ -609,7 +695,7 @@ are | is | am | be</textarea>
     function performJump(targetPlat, isCorrect, targetX, targetY, platText) {
         if(isJumping || isPaused) return;
         isJumping = true;
-        clearInterval(timerInt); // Ставим таймер на стоп во время прыжка
+        clearInterval(timerInt); 
         
         let charX = parseFloat(charEl.style.left) || 50;
         
@@ -618,7 +704,6 @@ are | is | am | be</textarea>
 
         if(!isMuted) { sfxJump.currentTime = 0; sfxJump.play(); }
 
-        // Прыжок 
         charEl.className = 'state-idle';
         charEl.style.bottom = (targetY + 7) + '%';
         charEl.style.left = targetX + '%';
@@ -673,10 +758,10 @@ are | is | am | be</textarea>
                             resetCharacterToBase();
                             txtEl.classList.remove('wrong-ans');
                             isJumping = false;
-                            startLevelTimer(); // Таймер запускается заново для повторной попытки
+                            startLevelTimer(); 
                         }
                     }, 1000); 
-                }, 300); // Быстрое падение
+                }, 300); 
             }
         }, 500); 
     }
