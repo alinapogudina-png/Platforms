@@ -27,6 +27,7 @@
         input[type="text"], input[type="url"], input[type="number"], select, textarea { width: 100%; padding: 10px 15px; border-radius: 10px; border: 1px solid #4b4b6a; background-color: #272738; color: #fff; box-sizing: border-box; font-family: 'Poppins', sans-serif; font-size: 13px; transition: 0.3s; }
         input[type="text"]:focus, input[type="url"]:focus, select:focus, textarea:focus { border-color: #a29bfe; outline: none; box-shadow: 0 0 10px rgba(162, 155, 254, 0.2); }
         input[type="color"] { padding: 0; border: none; width: 100%; height: 36px; border-radius: 8px; cursor: pointer; background: transparent; }
+        input[type="range"] { width: 100%; accent-color: #a29bfe; cursor: pointer; margin-top: 10px;}
         textarea { resize: vertical; min-height: 100px; white-space: pre; }
         
         .flex-row { display: flex; gap: 15px; align-items: flex-start; margin-bottom: 10px; flex-wrap: wrap; }
@@ -42,6 +43,8 @@
         
         #generated-code { height: 60px; margin-top: 10px; background: #1a1a24; border-color: #4b4b6a; color: #4ae38c; font-family: monospace; font-size: 11px;}
         .hint { font-size: 11px; color: #8e8eaf; margin-top: 4px; line-height: 1.3;}
+        
+        .val-display { display: inline-block; background: #4b4b6a; padding: 2px 8px; border-radius: 5px; font-size: 11px; margin-left: 10px; color: #fff;}
     </style>
 </head>
 <body>
@@ -73,8 +76,20 @@
             <div class="form-group flex-col"><label>Фон (Картинка)</label><input type="url" id="imgBg" value="https://i.postimg.cc/3R2tCYQK/2052ff5dcac5049d621d5d0a2bba92fe-269fd2de-2d39-473e-b0e6-fe5326b0ee97.jpg" oninput="debounceGenerate()"></div>
             <div class="form-group flex-col"><label>Персонаж</label><input type="url" id="imgChar" value="https://i.postimg.cc/zDbzNQwT/pngwing-com22.png" oninput="debounceGenerate()"></div>
         </div>
+        
+        <div class="flex-row" style="background: rgba(0,0,0,0.2); padding: 10px 15px; border-radius: 10px; margin-bottom: 15px;">
+            <div class="form-group flex-col" style="margin-bottom: 0;">
+                <label>Размер персонажа <span id="charSizeVal" class="val-display">100px</span></label>
+                <input type="range" id="charSize" min="50" max="250" value="100" oninput="updateVal('charSize', 'charSizeVal'); debounceGenerate()">
+            </div>
+            <div class="form-group flex-col" style="margin-bottom: 0;">
+                <label>Размер платформы <span id="platSizeVal" class="val-display">130px</span></label>
+                <input type="range" id="platSize" min="80" max="350" value="130" oninput="updateVal('platSize', 'platSizeVal'); debounceGenerate()">
+            </div>
+        </div>
+
         <div class="flex-row">
-            <div class="form-group flex-col"><label>Платформа</label><input type="url" id="imgPlat" value="https://i.postimg.cc/90FyRhWX/floating-island-with-grass-and-rocky-edges-cartoon-illustration-vector-removebg-preview.png" oninput="debounceGenerate()"></div>
+            <div class="form-group flex-col"><label>Платформа (Картинка)</label><input type="url" id="imgPlat" value="https://i.postimg.cc/90FyRhWX/floating-island-with-grass-and-rocky-edges-cartoon-illustration-vector-removebg-preview.png" oninput="debounceGenerate()"></div>
             <div class="form-group flex-col"><label>Иконка жизней</label><input type="url" id="imgLife" value="https://i.postimg.cc/pLDyHSvH/pngwing-com4.png" oninput="debounceGenerate()"></div>
         </div>
         
@@ -141,15 +156,21 @@
             <div class="form-group flex-col">
                 <label>Шрифт Ответов</label>
                 <select id="aFont" onchange="debounceGenerate()">
+                    <!-- Список синхронизирован с вопросами -->
                     <option value="'Montserrat', sans-serif">Montserrat</option>
-                    <option value="'Roboto', sans-serif">Roboto</option>
-                    <option value="'Jura', sans-serif">Jura</option>
                     <option value="'Russo One', sans-serif">Russo One</option>
-                    <option value="'Oswald', sans-serif">Oswald</option>
-                    <option value="'Rubik', sans-serif">Rubik</option>
+                    <option value="'Comfortaa', sans-serif">Comfortaa</option>
+                    <option value="'Jura', sans-serif">Jura</option>
+                    <option value="'Kurale', serif">Kurale (Сказочный)</option>
                     <option value="'Caveat', cursive">Caveat (Рукописный)</option>
-                    <option value="'Bad Script', cursive">Bad Script (Рукописный рус)</option>
-                    <option value="'Alice', serif">Alice</option>
+                    <option value="'Neucha', cursive">Neucha (Игривый рус)</option>
+                    <option value="'Amatic SC', cursive">Amatic SC (Узкий)</option>
+                    <option value="'Oswald', sans-serif">Oswald (Строгий)</option>
+                    <option value="'Rubik', sans-serif">Rubik (Четкий)</option>
+                    <option value="'Bad Script', cursive">Bad Script (Письмо рус)</option>
+                    <option value="'Pacifico', cursive">Pacifico (Винтаж)</option>
+                    <option value="'Lobster', cursive">Lobster</option>
+                    <option value="'Alice', serif">Alice (Книжный рус)</option>
                 </select>
             </div>
         </div>
@@ -158,13 +179,13 @@
             <div class="form-group flex-col"><label>Цвет Ответов</label><input type="color" id="aColor" value="#ffffff" onchange="debounceGenerate()"></div>
         </div>
         <div class="flex-row">
-            <div class="form-group flex-col"><label>Цвет Кнопок</label><input type="color" id="btnColor" value="#2ecc71" onchange="debounceGenerate()"></div>
+            <div class="form-group flex-col"><label>Цвет Главных Кнопок</label><input type="color" id="btnColor" value="#2ecc71" onchange="debounceGenerate()"></div>
             <div class="form-group flex-col" style="flex:2"><label>Картинка Кнопки (Опционально)</label><input type="url" id="imgBtn" value="" placeholder="Если указана, пропорции сохранятся" oninput="debounceGenerate()"></div>
         </div>
         <div class="flex-row" style="align-items: center; background: rgba(0,0,0,0.2); padding: 10px 15px; border-radius: 10px; margin-bottom: 15px;">
             <div class="form-group flex-col" style="flex: 2; margin-bottom: 0;">
                 <label class="checkbox-label" style="margin: 0;">
-                    <input type="checkbox" id="useNeon" checked onchange="debounceGenerate()"> Неоновая подсветка кнопок ответов
+                    <input type="checkbox" id="useNeon" checked onchange="debounceGenerate()"> Неоновая подсветка рамок ответов
                 </label>
             </div>
             <div class="form-group flex-col" style="margin-bottom: 0;">
@@ -210,6 +231,10 @@ are | is | am | be</textarea>
     </div>
 
     <script>
+        function updateVal(inputId, displayId) {
+            document.getElementById(displayId).innerText = document.getElementById(inputId).value + 'px';
+        }
+
         function getInputs() {
             let qLines = document.getElementById('qList').value.split('\n').map(s=>s.trim()).filter(s=>s);
             let aLines = document.getElementById('aList').value.split('\n').map(s=>s.trim()).filter(s=>s);
@@ -236,7 +261,9 @@ are | is | am | be</textarea>
                 neonColor: document.getElementById('neonColor').value,
                 imgBg: document.getElementById('imgBg').value,
                 imgChar: document.getElementById('imgChar').value,
+                charSize: document.getElementById('charSize').value, // НОВЫЙ ПАРАМЕТР
                 imgPlat: document.getElementById('imgPlat').value,
+                platSize: document.getElementById('platSize').value, // НОВЫЙ ПАРАМЕТР
                 imgLife: document.getElementById('imgLife').value,
                 imgWin: document.getElementById('imgWin').value,
                 imgLose: document.getElementById('imgLose').value,
@@ -256,6 +283,7 @@ are | is | am | be</textarea>
 
         function generateCode() {
             const conf = getInputs();
+            const platHeight = Math.round(conf.platSize * 0.6); // Пропорциональная высота платформы
 
             const innerHTML = `<!DOCTYPE html>
 <html lang="${conf.lang.toLowerCase()}">
@@ -298,36 +326,65 @@ are | is | am | be</textarea>
     /* ПЛАТФОРМЫ И ТЕКСТЫ */
     #platforms-layer { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity 0.3s;}
     
-    .platform-wrap { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; transform: translateX(-50%); cursor: pointer; width: 140px; z-index: 20;}
+    /* Контейнер адаптируется под размер картинки */
+    .platform-wrap { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; transform: translateX(-50%); cursor: pointer; min-width: ${Math.max(140, conf.platSize)}px; z-index: 20;}
     
-    .platform-text { font-family: ${conf.aFont} !important; color: ${conf.aColor} !important; font-size: 18px !important; font-weight: 800 !important; background: rgba(0,0,0,0.65); border: 2px solid rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; margin-bottom: -5px; text-align: center; z-index: 22; pointer-events: none; transition: 0.2s; white-space: nowrap; box-shadow: 0 4px 10px rgba(0,0,0,0.5);}
+    .platform-text { 
+        font-family: ${conf.aFont} !important; 
+        color: ${conf.aColor} !important; 
+        font-size: 18px !important; 
+        font-weight: 800 !important; 
+        background: rgba(0,0,0,0.65); 
+        border: 2px solid rgba(255,255,255,0.2); 
+        padding: 5px 15px; 
+        border-radius: 20px; 
+        margin-bottom: -5px; 
+        text-align: center; 
+        z-index: 22; 
+        pointer-events: none; 
+        transition: 0.2s; 
+        white-space: nowrap; 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important; /* ЧЕТКИЙ ТЕКСТ (без размытия неона) */
+    }
     
-    .platform-img { width: 130px; height: 60px; background: url('${conf.imgPlat}') center/contain no-repeat; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.4)); transition: 0.2s; z-index: 21;}
+    /* Настраиваемый размер платформы */
+    .platform-img { 
+        width: ${conf.platSize}px; 
+        height: ${platHeight}px; 
+        background: url('${conf.imgPlat}') center/contain no-repeat; 
+        filter: drop-shadow(0 10px 10px rgba(0,0,0,0.4)); 
+        transition: 0.2s; 
+        z-index: 21;
+    }
     
     .platform-wrap:hover .platform-img { transform: scale(1.05); filter: drop-shadow(0 15px 15px rgba(0,0,0,0.6));}
     
-    /* Подсветка ответов (Неон ВКЛ/ВЫКЛ) */
+    /* Подсветка ответов (Неон ВКЛ/ВЫКЛ) - Светится ТОЛЬКО рамка/блок, а не шрифт */
     ${conf.useNeon ? `
-    /* ПОСТОЯННОЕ НЕОНОВОЕ СВЕЧЕНИЕ ВОКРУГ КНОПОК ОТВЕТОВ */
+    /* НЕОН ВОКРУГ БЛОКА ОТВЕТА */
     .platform-text {
         border-color: ${conf.neonColor} !important;
         box-shadow: 0 0 15px ${conf.neonColor}, inset 0 0 8px ${conf.neonColor} !important;
-        text-shadow: 0 0 5px ${conf.neonColor} !important;
     }
     /* ЦВЕТ МЕНЯЕТСЯ ПРИ ВЫБОРЕ */
-    .platform-text.correct-ans { color: #2ecc71 !important; text-shadow: 0 0 10px #2ecc71 !important; border-color: #2ecc71 !important; box-shadow: 0 0 20px rgba(46, 204, 113, 0.8), inset 0 0 10px rgba(46, 204, 113, 0.5) !important; transform: scale(1.1);}
-    .platform-text.wrong-ans { color: #ff4757 !important; text-shadow: 0 0 10px #ff4757 !important; border-color: #ff4757 !important; box-shadow: 0 0 20px rgba(255, 71, 87, 0.8), inset 0 0 10px rgba(255, 71, 87, 0.5) !important; transform: scale(1.1);}
+    .platform-text.correct-ans { color: #2ecc71 !important; border-color: #2ecc71 !important; box-shadow: 0 0 20px rgba(46, 204, 113, 0.8), inset 0 0 10px rgba(46, 204, 113, 0.5) !important; transform: scale(1.1);}
+    .platform-text.wrong-ans { color: #ff4757 !important; border-color: #ff4757 !important; box-shadow: 0 0 20px rgba(255, 71, 87, 0.8), inset 0 0 10px rgba(255, 71, 87, 0.5) !important; transform: scale(1.1);}
     ` : `
     /* БЕЗ НЕОНА - ПРОСТО ВЫДЕЛЕНИЕ ПРИ ПРЫЖКЕ */
     .platform-text.correct-ans { color: #2ecc71 !important; border-color: #2ecc71 !important; transform: scale(1.1); background: rgba(46, 204, 113, 0.2) !important;}
     .platform-text.wrong-ans { color: #ff4757 !important; border-color: #ff4757 !important; transform: scale(1.1); background: rgba(255, 71, 87, 0.2) !important;}
     `}
 
-    /* ПЕРСОНАЖ */
+    /* ПЕРСОНАЖ (Настраиваемый размер) */
     #character { 
-        position: absolute; left: 50%; width: 70px; height: 90px; 
+        position: absolute; 
+        left: 50%; 
+        width: ${conf.charSize}px; 
+        height: ${Math.round(conf.charSize * 1.28)}px; /* Пропорция высоты */
         background: url('${conf.imgChar}') center/contain no-repeat; 
-        z-index: 30; margin-left: -35px; 
+        z-index: 30; 
+        margin-left: calc(-${conf.charSize}px / 2); /* Центровка относительно ширины */
         filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
         --dir: 1; 
     }
@@ -376,11 +433,11 @@ are | is | am | be</textarea>
         text-transform: uppercase;
     }
     
-    /* КНОПКА (ОБНОВЛЕННАЯ ЛОГИКА ДЛЯ КАРТИНОК) */
+    /* КНОПКА */
     .elt-btn-huge { 
         font-family: ${conf.qFont} !important; 
         font-weight: 900 !important; 
-        font-size: clamp(22px, 5vw, 36px) !important; /* АВТО-РАЗМЕР ТЕКСТА */
+        font-size: clamp(22px, 5vw, 36px) !important; 
         cursor: pointer !important; 
         transition: 0.3s !important; 
         z-index: 10;
@@ -392,7 +449,6 @@ are | is | am | be</textarea>
         text-align: center;
         
         ${conf.imgBtn ? `
-            /* Режим картинки: огромный размер, вписывание картинки целиком (contain) без искажений */
             background: url('${conf.imgBtn}') center/contain no-repeat !important;
             background-color: transparent !important;
             border: none !important;
@@ -401,7 +457,6 @@ are | is | am | be</textarea>
             height: 150px !important;
             padding: 0 !important;
         ` : `
-            /* Режим цвета: стандартная кнопка */
             background: ${conf.btnColor} !important;
             border: 3px solid #fff !important;
             border-radius: 30px !important;
@@ -708,6 +763,7 @@ are | is | am | be</textarea>
         charEl.style.bottom = (targetY + 7) + '%';
         charEl.style.left = targetX + '%';
 
+        // Прыжок занимает 500мс
         setTimeout(() => {
             let txtEl = targetPlat.querySelector('.platform-text');
             
@@ -717,6 +773,7 @@ are | is | am | be</textarea>
                 
                 if(!isMuted) { sfxCorrect.currentTime = 0; sfxCorrect.play(); }
                 
+                // УСКОРЕНА ПАУЗА ДО ПАДЕНИЯ КАМЕРЫ (было 1000мс, стало 350мс)
                 setTimeout(() => {
                     qBanner.classList.add('hidden');
                     
@@ -737,9 +794,9 @@ are | is | am | be</textarea>
                         charEl.className = 'state-idle'; 
                         loadLevel(false); 
                         isJumping = false;
-                    }, 850);
+                    }, 850); // Время спуска камеры вниз
 
-                }, 1000);
+                }, 350); 
             } else {
                 txtEl.classList.add('wrong-ans');
                 
@@ -761,7 +818,7 @@ are | is | am | be</textarea>
                             startLevelTimer(); 
                         }
                     }, 1000); 
-                }, 300); 
+                }, 200); // Чуть ускорено время до начала падения при ошибке
             }
         }, 500); 
     }
@@ -809,11 +866,14 @@ are | is | am | be</textarea>
             previewTimeout = setTimeout(generateCode, 800);
         }
 
-        document.querySelectorAll('input, select, textarea').forEach(el => {
+        document.querySelectorAll('input:not([type="range"]), select, textarea').forEach(el => {
             el.addEventListener('input', debounceGenerate);
             el.addEventListener('change', debounceGenerate);
         });
 
+        // Первичный запуск генератора с установкой значений слайдеров
+        updateVal('charSize', 'charSizeVal');
+        updateVal('platSize', 'platSizeVal');
         debounceGenerate();
     </script>
 </body>
