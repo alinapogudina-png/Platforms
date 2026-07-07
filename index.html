@@ -45,6 +45,11 @@
         .hint { font-size: 11px; color: #8e8eaf; margin-top: 4px; line-height: 1.3;}
         
         .val-display { display: inline-block; background: #4b4b6a; padding: 2px 8px; border-radius: 5px; font-size: 11px; margin-left: 10px; color: #fff;}
+        
+        .input-with-button { display: flex; gap: 10px; }
+        .input-with-button input { flex: 1; }
+        .upload-btn { padding: 0 15px; border-radius: 10px; border: 1px solid #4b4b6a; background-color: #272738; color: #a29bfe; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        .upload-btn:hover { background-color: rgba(162, 155, 254, 0.1); border-color: #a29bfe; }
     </style>
 </head>
 <body>
@@ -73,8 +78,24 @@
 
         <h3>Графика и Звуки</h3>
         <div class="flex-row">
-            <div class="form-group flex-col"><label>Фон (Картинка)</label><input type="url" id="imgBg" value="https://i.postimg.cc/3R2tCYQK/2052ff5dcac5049d621d5d0a2bba92fe-269fd2de-2d39-473e-b0e6-fe5326b0ee97.jpg" oninput="debounceGenerate()"></div>
-            <div class="form-group flex-col"><label>Персонаж</label><input type="url" id="imgChar" value="https://i.postimg.cc/zDbzNQwT/pngwing-com22.png" oninput="debounceGenerate()"></div>
+            <div class="form-group flex-col">
+                <label>Фон (Картинка)</label>
+                <div class="input-with-button">
+                    <input type="text" id="imgBg" value="https://i.postimg.cc/3R2tCYQK/2052ff5dcac5049d621d5d0a2bba92fe-269fd2de-2d39-473e-b0e6-fe5326b0ee97.jpg" oninput="debounceGenerate()">
+                    <button class="upload-btn" onclick="document.getElementById('imgBg-file').click()">📂</button>
+                </div>
+                <input type="file" id="imgBg-file" accept="image/*" style="display:none;" data-target="imgBg" data-limit="5242880" onchange="handleFileUpload(event)">
+                <div class="hint">Ссылка или файл (до 5 МБ).</div>
+            </div>
+            <div class="form-group flex-col">
+                <label>Персонаж</label>
+                <div class="input-with-button">
+                    <input type="text" id="imgChar" value="https://i.postimg.cc/zDbzNQwT/pngwing-com22.png" oninput="debounceGenerate()">
+                    <button class="upload-btn" onclick="document.getElementById('imgChar-file').click()">📂</button>
+                </div>
+                <input type="file" id="imgChar-file" accept="image/*" style="display:none;" data-target="imgChar" data-limit="2097152" onchange="handleFileUpload(event)">
+                <div class="hint">(до 2 МБ)</div>
+            </div>
         </div>
         
         <div class="flex-row" style="background: rgba(0,0,0,0.2); padding: 10px 15px; border-radius: 10px; margin-bottom: 15px;">
@@ -89,33 +110,70 @@
         </div>
 
         <div class="flex-row">
-            <div class="form-group flex-col"><label>Платформа (Картинка)</label><input type="url" id="imgPlat" value="https://i.postimg.cc/90FyRhWX/floating-island-with-grass-and-rocky-edges-cartoon-illustration-vector-removebg-preview.png" oninput="debounceGenerate()"></div>
-            <div class="form-group flex-col"><label>Иконка жизней</label><input type="url" id="imgLife" value="https://i.postimg.cc/pLDyHSvH/pngwing-com4.png" oninput="debounceGenerate()"></div>
+            <div class="form-group flex-col">
+                <label>Платформа (Картинка)</label>
+                <div class="input-with-button">
+                    <input type="text" id="imgPlat" value="https://i.postimg.cc/90FyRhWX/floating-island-with-grass-and-rocky-edges-cartoon-illustration-vector-removebg-preview.png" oninput="debounceGenerate()">
+                    <button class="upload-btn" onclick="document.getElementById('imgPlat-file').click()">📂</button>
+                </div>
+                <input type="file" id="imgPlat-file" accept="image/*" style="display:none;" data-target="imgPlat" data-limit="2097152" onchange="handleFileUpload(event)">
+                <div class="hint">(до 2 МБ)</div>
+            </div>
+            <div class="form-group flex-col">
+                <label>Иконка жизней</label>
+                <div class="input-with-button">
+                    <input type="text" id="imgLife" value="https://i.postimg.cc/pLDyHSvH/pngwing-com4.png" oninput="debounceGenerate()">
+                    <button class="upload-btn" onclick="document.getElementById('imgLife-file').click()">📂</button>
+                </div>
+                <input type="file" id="imgLife-file" accept="image/*" style="display:none;" data-target="imgLife" data-limit="2097152" onchange="handleFileUpload(event)">
+                <div class="hint">(до 2 МБ)</div>
+            </div>
         </div>
         
         <div class="flex-row">
             <div class="form-group flex-col">
                 <label>Звук прыжка</label>
-                <input type="url" id="audioJump" value="https://files.catbox.moe/e7svdw.mp3" oninput="debounceGenerate()">
+                <div class="input-with-button">
+                    <input type="text" id="audioJump" value="https://files.catbox.moe/e7svdw.mp3" oninput="debounceGenerate()">
+                    <button class="upload-btn" onclick="document.getElementById('audioJump-file').click()">📂</button>
+                </div>
+                <input type="file" id="audioJump-file" accept="audio/*" style="display:none;" data-target="audioJump" data-limit="5242880" onchange="handleFileUpload(event)">
             </div>
             <div class="form-group flex-col">
                 <label>Звук падения</label>
-                <input type="url" id="audioFall" value="https://files.catbox.moe/7tt56a.mp3" oninput="debounceGenerate()">
+                <div class="input-with-button">
+                    <input type="text" id="audioFall" value="https://files.catbox.moe/7tt56a.mp3" oninput="debounceGenerate()">
+                    <button class="upload-btn" onclick="document.getElementById('audioFall-file').click()">📂</button>
+                </div>
+                <input type="file" id="audioFall-file" accept="audio/*" style="display:none;" data-target="audioFall" data-limit="5242880" onchange="handleFileUpload(event)">
             </div>
         </div>
         <div class="flex-row">
             <div class="form-group flex-col">
                 <label>Звук верного ответа</label>
-                <input type="url" id="audioCorrect" value="https://files.catbox.moe/l6z61z.mp3" oninput="debounceGenerate()">
+                <div class="input-with-button">
+                    <input type="text" id="audioCorrect" value="https://files.catbox.moe/l6z61z.mp3" oninput="debounceGenerate()">
+                    <button class="upload-btn" onclick="document.getElementById('audioCorrect-file').click()">📂</button>
+                </div>
+                <input type="file" id="audioCorrect-file" accept="audio/*" style="display:none;" data-target="audioCorrect" data-limit="5242880" onchange="handleFileUpload(event)">
             </div>
             <div class="form-group flex-col">
                 <label>Звук победы (финал)</label>
-                <input type="url" id="audioFinalWin" value="https://files.catbox.moe/8jacx9.mp3" oninput="debounceGenerate()">
+                <div class="input-with-button">
+                    <input type="text" id="audioFinalWin" value="https://files.catbox.moe/8jacx9.mp3" oninput="debounceGenerate()">
+                    <button class="upload-btn" onclick="document.getElementById('audioFinalWin-file').click()">📂</button>
+                </div>
+                <input type="file" id="audioFinalWin-file" accept="audio/*" style="display:none;" data-target="audioFinalWin" data-limit="5242880" onchange="handleFileUpload(event)">
             </div>
         </div>
         <div class="form-group">
             <label>Фоновая музыка</label>
-            <input type="url" id="audioBg" value="https://files.catbox.moe/k3bx7z.mp3" oninput="debounceGenerate()">
+            <div class="input-with-button">
+                <input type="text" id="audioBg" value="https://files.catbox.moe/k3bx7z.mp3" oninput="debounceGenerate()">
+                <button class="upload-btn" onclick="document.getElementById('audioBg-file').click()">📂</button>
+            </div>
+            <input type="file" id="audioBg-file" accept="audio/*" style="display:none;" data-target="audioBg" data-limit="5242880" onchange="handleFileUpload(event)">
+            <div class="hint">Ссылки на аудио или файлы (до 5 МБ).</div>
         </div>
 
         <!-- НАСТРОЙКИ ТАЙМЕРА И ПАУЗЫ -->
@@ -156,7 +214,6 @@
             <div class="form-group flex-col">
                 <label>Шрифт Ответов</label>
                 <select id="aFont" onchange="debounceGenerate()">
-                    <!-- Список синхронизирован с вопросами -->
                     <option value="'Montserrat', sans-serif">Montserrat</option>
                     <option value="'Russo One', sans-serif">Russo One</option>
                     <option value="'Comfortaa', sans-serif">Comfortaa</option>
@@ -180,7 +237,14 @@
         </div>
         <div class="flex-row">
             <div class="form-group flex-col"><label>Цвет Главных Кнопок</label><input type="color" id="btnColor" value="#2ecc71" onchange="debounceGenerate()"></div>
-            <div class="form-group flex-col" style="flex:2"><label>Картинка Кнопки (Опционально)</label><input type="url" id="imgBtn" value="" placeholder="Если указана, пропорции сохранятся" oninput="debounceGenerate()"></div>
+            <div class="form-group flex-col" style="flex:2">
+                <label>Картинка Кнопки (Опционально)</label>
+                <div class="input-with-button">
+                    <input type="text" id="imgBtn" value="" placeholder="Если указана, пропорции сохранятся" oninput="debounceGenerate()">
+                    <button class="upload-btn" onclick="document.getElementById('imgBtn-file').click()">📂</button>
+                </div>
+                <input type="file" id="imgBtn-file" accept="image/*" style="display:none;" data-target="imgBtn" data-limit="2097152" onchange="handleFileUpload(event)">
+            </div>
         </div>
         <div class="flex-row" style="align-items: center; background: rgba(0,0,0,0.2); padding: 10px 15px; border-radius: 10px; margin-bottom: 15px;">
             <div class="form-group flex-col" style="flex: 2; margin-bottom: 0;">
@@ -213,11 +277,25 @@ are | is | am | be</textarea>
 
         <h3>Финальные экраны</h3>
         <div class="flex-row">
-            <div class="form-group flex-col"><label>Картинка Победы</label><input type="url" id="imgWin" value="https://i.postimg.cc/nzMdsgnM/pngwing-com.png" oninput="debounceGenerate()"></div>
+            <div class="form-group flex-col">
+                <label>Картинка Победы</label>
+                <div class="input-with-button">
+                    <input type="text" id="imgWin" value="https://i.postimg.cc/nzMdsgnM/pngwing-com.png" oninput="debounceGenerate()">
+                    <button class="upload-btn" onclick="document.getElementById('imgWin-file').click()">📂</button>
+                </div>
+                <input type="file" id="imgWin-file" accept="image/*" style="display:none;" data-target="imgWin" data-limit="2097152" onchange="handleFileUpload(event)">
+            </div>
             <div class="form-group flex-col"><label>Текст Победы</label><input type="text" id="winText" value="YOU REACHED THE TOP!" oninput="debounceGenerate()"></div>
         </div>
         <div class="flex-row">
-            <div class="form-group flex-col"><label>Картинка Проигрыша</label><input type="url" id="imgLose" value="https://i.postimg.cc/y8ZsRp84/9777c20df798888ccb61cdd361c53021-7c141f14-7f5e-4fcb-b0a5-a0ad5ec6c9ba-removebg-preview.png" oninput="debounceGenerate()"></div>
+            <div class="form-group flex-col">
+                <label>Картинка Проигрыша</label>
+                <div class="input-with-button">
+                    <input type="text" id="imgLose" value="https://i.postimg.cc/y8ZsRp84/9777c20df798888ccb61cdd361c53021-7c141f14-7f5e-4fcb-b0a5-a0ad5ec6c9ba-removebg-preview.png" oninput="debounceGenerate()">
+                    <button class="upload-btn" onclick="document.getElementById('imgLose-file').click()">📂</button>
+                </div>
+                <input type="file" id="imgLose-file" accept="image/*" style="display:none;" data-target="imgLose" data-limit="2097152" onchange="handleFileUpload(event)">
+            </div>
             <div class="form-group flex-col"><label>Текст Проигрыша</label><input type="text" id="loseText" value="GAME OVER!" oninput="debounceGenerate()"></div>
         </div>
 
@@ -231,6 +309,31 @@ are | is | am | be</textarea>
     </div>
 
     <script>
+        function handleFileUpload(event) {
+            const fileInput = event.target;
+            const targetInputId = fileInput.dataset.target;
+            const sizeLimit = parseInt(fileInput.dataset.limit);
+            const targetInput = document.getElementById(targetInputId);
+
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            if (file.size > sizeLimit) {
+                alert(`Файл слишком большой! Макс. размер: ${(sizeLimit / 1024 / 1024).toFixed(1)} МБ.`);
+                fileInput.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                targetInput.value = e.target.result;
+                debounceGenerate();
+            };
+            reader.onerror = () => alert('Не удалось прочитать файл.');
+            reader.readAsDataURL(file);
+            fileInput.value = '';
+        }
+
         function updateVal(inputId, displayId) {
             document.getElementById(displayId).innerText = document.getElementById(inputId).value + 'px';
         }
@@ -261,9 +364,9 @@ are | is | am | be</textarea>
                 neonColor: document.getElementById('neonColor').value,
                 imgBg: document.getElementById('imgBg').value,
                 imgChar: document.getElementById('imgChar').value,
-                charSize: document.getElementById('charSize').value, // НОВЫЙ ПАРАМЕТР
+                charSize: document.getElementById('charSize').value,
                 imgPlat: document.getElementById('imgPlat').value,
-                platSize: document.getElementById('platSize').value, // НОВЫЙ ПАРАМЕТР
+                platSize: document.getElementById('platSize').value,
                 imgLife: document.getElementById('imgLife').value,
                 imgWin: document.getElementById('imgWin').value,
                 imgLose: document.getElementById('imgLose').value,
@@ -283,7 +386,7 @@ are | is | am | be</textarea>
 
         function generateCode() {
             const conf = getInputs();
-            const platHeight = Math.round(conf.platSize * 0.6); // Пропорциональная высота платформы
+            const platHeight = Math.round(conf.platSize * 0.6);
 
             const innerHTML = `<!DOCTYPE html>
 <html lang="${conf.lang.toLowerCase()}">
@@ -296,13 +399,9 @@ are | is | am | be</textarea>
     html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; touch-action: none; font-family: 'Montserrat', sans-serif;}
     * { box-sizing: border-box !important; -webkit-tap-highlight-color: transparent;}
     
-    /* ДВИЖУЩИЙСЯ ФОН */
     #game-bg { position: absolute; inset: 0; width: 100%; height: 100%; background: url('${conf.imgBg}') bottom center/cover no-repeat; z-index: 0; transition: background-position-y 0.8s ease-in-out; }
-    
-    /* КОНТЕЙНЕР УРОВНЯ (камера) */
     #world-container { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 10;}
 
-    /* UI TOP BAR */
     #ui-bar { position: absolute; top: 0; left: 0; right: 0; padding: 15px 20px; display: flex; justify-content: space-between; align-items: flex-start; z-index: 50;}
     .lives-box { display: flex; gap: 8px; }
     .life-icon { width: 35px; height: 35px; background: url('${conf.imgLife}') center/contain no-repeat; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); transition: 0.3s;}
@@ -311,102 +410,41 @@ are | is | am | be</textarea>
     .right-controls { display: flex; gap: 15px; align-items: flex-start; }
     .buttons-col { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
     
-    /* СЧЕТЧИК И ТАЙМЕР */
     .counter-box { font-size: 22px; font-weight: 800; color: #fff; text-shadow: 0 0 10px #000, 0 2px 5px #000; line-height: 40px; margin-top: -2px;}
     .timer-box { font-size: 26px; font-weight: 800; color: #fff; text-shadow: 0 0 10px #000, 0 2px 5px #000; display: ${conf.useTimer ? 'block' : 'none'}; line-height: 40px; margin-top: -2px;}
     
     .control-btn { background: rgba(0,0,0,0.5); border: 2px solid #fff; color: #fff; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; transition: 0.2s;}
     #btn-pause { display: ${conf.useTimer && conf.allowPause ? 'flex' : 'none'}; font-size: 14px; }
     
-    /* ВОПРОС */
     #question-banner { position: absolute; top: 5%; left: 50%; transform: translateX(-50%); width: 90%; max-width: 650px; background: rgba(0,0,0,0.7); border: 3px solid rgba(255,255,255,0.2); border-radius: 25px; padding: 15px 30px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 40; transition: 0.5s; backdrop-filter: blur(3px);}
     #question-banner.hidden { opacity: 0; transform: translate(-50%, -20px); pointer-events: none; }
     #question-text { font-family: ${conf.qFont} !important; color: ${conf.qColor} !important; font-size: clamp(18px, 3.5vw, 26px) !important; text-shadow: 0 2px 5px rgba(0,0,0,0.8) !important; line-height: 1.3 !important;}
 
-    /* ПЛАТФОРМЫ И ТЕКСТЫ */
     #platforms-layer { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity 0.3s;}
     
-    /* Контейнер адаптируется под размер картинки */
     .platform-wrap { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; transform: translateX(-50%); cursor: pointer; min-width: ${Math.max(140, conf.platSize)}px; z-index: 20;}
     
-    .platform-text { 
-        font-family: ${conf.aFont} !important; 
-        color: ${conf.aColor} !important; 
-        font-size: 18px !important; 
-        font-weight: 800 !important; 
-        background: rgba(0,0,0,0.65); 
-        border: 2px solid rgba(255,255,255,0.2); 
-        padding: 5px 15px; 
-        border-radius: 20px; 
-        margin-bottom: -5px; 
-        text-align: center; 
-        z-index: 22; 
-        pointer-events: none; 
-        transition: 0.2s; 
-        white-space: nowrap; 
-        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important; /* ЧЕТКИЙ ТЕКСТ (без размытия неона) */
-    }
+    .platform-text { font-family: ${conf.aFont} !important; color: ${conf.aColor} !important; font-size: 18px !important; font-weight: 800 !important; background: rgba(0,0,0,0.65); border: 2px solid rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; margin-bottom: -5px; text-align: center; z-index: 22; pointer-events: none; transition: 0.2s; white-space: nowrap; box-shadow: 0 4px 10px rgba(0,0,0,0.5); text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important; }
     
-    /* Настраиваемый размер платформы */
-    .platform-img { 
-        width: ${conf.platSize}px; 
-        height: ${platHeight}px; 
-        background: url('${conf.imgPlat}') center/contain no-repeat; 
-        filter: drop-shadow(0 10px 10px rgba(0,0,0,0.4)); 
-        transition: 0.2s; 
-        z-index: 21;
-    }
+    .platform-img { width: ${conf.platSize}px; height: ${platHeight}px; background: url('${conf.imgPlat}') center/contain no-repeat; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.4)); transition: 0.2s; z-index: 21; }
     
     .platform-wrap:hover .platform-img { transform: scale(1.05); filter: drop-shadow(0 15px 15px rgba(0,0,0,0.6));}
     
-    /* Подсветка ответов (Неон ВКЛ/ВЫКЛ) - Светится ТОЛЬКО рамка/блок, а не шрифт */
     ${conf.useNeon ? `
-    /* НЕОН ВОКРУГ БЛОКА ОТВЕТА */
-    .platform-text {
-        border-color: ${conf.neonColor} !important;
-        box-shadow: 0 0 15px ${conf.neonColor}, inset 0 0 8px ${conf.neonColor} !important;
-    }
-    /* ЦВЕТ МЕНЯЕТСЯ ПРИ ВЫБОРЕ */
+    .platform-text { border-color: ${conf.neonColor} !important; box-shadow: 0 0 15px ${conf.neonColor}, inset 0 0 8px ${conf.neonColor} !important; }
     .platform-text.correct-ans { color: #2ecc71 !important; border-color: #2ecc71 !important; box-shadow: 0 0 20px rgba(46, 204, 113, 0.8), inset 0 0 10px rgba(46, 204, 113, 0.5) !important; transform: scale(1.1);}
     .platform-text.wrong-ans { color: #ff4757 !important; border-color: #ff4757 !important; box-shadow: 0 0 20px rgba(255, 71, 87, 0.8), inset 0 0 10px rgba(255, 71, 87, 0.5) !important; transform: scale(1.1);}
     ` : `
-    /* БЕЗ НЕОНА - ПРОСТО ВЫДЕЛЕНИЕ ПРИ ПРЫЖКЕ */
     .platform-text.correct-ans { color: #2ecc71 !important; border-color: #2ecc71 !important; transform: scale(1.1); background: rgba(46, 204, 113, 0.2) !important;}
     .platform-text.wrong-ans { color: #ff4757 !important; border-color: #ff4757 !important; transform: scale(1.1); background: rgba(255, 71, 87, 0.2) !important;}
     `}
 
-    /* ПЕРСОНАЖ (Настраиваемый размер) */
-    #character { 
-        position: absolute; 
-        left: 50%; 
-        width: ${conf.charSize}px; 
-        height: ${Math.round(conf.charSize * 1.28)}px; /* Пропорция высоты */
-        background: url('${conf.imgChar}') center/contain no-repeat; 
-        z-index: 30; 
-        margin-left: calc(-${conf.charSize}px / 2); /* Центровка относительно ширины */
-        filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
-        --dir: 1; 
-    }
+    #character { position: absolute; left: 50%; width: ${conf.charSize}px; height: ${Math.round(conf.charSize * 1.28)}px; background: url('${conf.imgChar}') center/contain no-repeat; z-index: 30; margin-left: calc(-${conf.charSize}px / 2); filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); --dir: 1; }
     
-    /* Состояния анимации */
-    .state-idle { 
-        transition: bottom 0.5s cubic-bezier(0.25, 1, 0.5, 1), left 0.5s linear, transform 0.2s; 
-        transform: scaleX(var(--dir)); 
-        opacity: 1;
-    }
-    .state-cam-drop { 
-        transition: bottom 0.8s ease-in-out; 
-        transform: scaleX(var(--dir)); 
-        opacity: 1;
-    }
-    .state-fall { 
-        transition: bottom 1s cubic-bezier(0.55, 0.085, 0.68, 0.53), transform 1s ease-in, opacity 1s ease-in; 
-        transform: scaleX(var(--dir)) rotate(720deg) scale(0.2); 
-        opacity: 0; 
-    }
+    .state-idle { transition: bottom 0.5s cubic-bezier(0.25, 1, 0.5, 1), left 0.5s linear, transform 0.2s; transform: scaleX(var(--dir)); opacity: 1; }
+    .state-cam-drop { transition: bottom 0.8s ease-in-out; transform: scaleX(var(--dir)); opacity: 1; }
+    .state-fall { transition: bottom 1s cubic-bezier(0.55, 0.085, 0.68, 0.53), transform 1s ease-in, opacity 1s ease-in; transform: scaleX(var(--dir)) rotate(720deg) scale(0.2); opacity: 0; }
 
-    /* ЭКРАНЫ */
     .elt-screen { position: absolute !important; inset: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding: 20px !important; z-index: 1000 !important; transition: opacity 0.5s !important;}
     #screen-start { background: rgba(0,0,0,0.7) !important; backdrop-filter: blur(5px); }
     #screen-win { background: rgba(0,0,0,0.85) !important; }
@@ -417,59 +455,13 @@ are | is | am | be</textarea>
     .win-img { animation: floatImg 3s ease-in-out infinite; }
     .lose-img { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: drop-shadow(0 0 30px rgba(229,9,20,0.8)); }
 
-    /* ЗАГОЛОВОК */
-    .elt-title-huge { 
-        font-family: ${conf.qFont} !important; 
-        color: #fff !important; 
-        font-weight: 800; 
-        font-size: clamp(25px, 4vw, 45px);
-        padding: 15px 30px !important; 
-        border-radius: 20px; 
-        border: 3px solid #fff; 
-        margin-bottom: 40px !important; 
-        box-shadow: 0 0 30px rgba(255,255,255,0.5); 
-        text-align: center; 
-        background: rgba(0,0,0,0.5); 
-        text-transform: uppercase;
+    .elt-title-huge { font-family: ${conf.qFont} !important; color: #fff !important; font-weight: 800; font-size: clamp(25px, 4vw, 45px); padding: 15px 30px !important; border-radius: 20px; border: 3px solid #fff; margin-bottom: 40px !important; box-shadow: 0 0 30px rgba(255,255,255,0.5); text-align: center; background: rgba(0,0,0,0.5); text-transform: uppercase; }
+    
+    .elt-btn-huge { font-family: ${conf.qFont} !important; font-weight: 900 !important; font-size: clamp(22px, 5vw, 36px) !important; cursor: pointer !important; transition: 0.3s !important; z-index: 10; color: #fff !important; text-shadow: 0 2px 5px rgba(0,0,0,0.8) !important; display: flex; align-items: center; justify-content: center; text-align: center;
+        ${conf.imgBtn ? `background: url('${conf.imgBtn}') center/contain no-repeat !important; background-color: transparent !important; border: none !important; box-shadow: none !important; width: 350px !important; height: 150px !important; padding: 0 !important;` : `background: ${conf.btnColor} !important; border: 3px solid #fff !important; border-radius: 30px !important; box-shadow: 0 5px 20px rgba(0,0,0,0.8) !important; min-width: 320px; padding: 20px 60px !important;`}
     }
     
-    /* КНОПКА */
-    .elt-btn-huge { 
-        font-family: ${conf.qFont} !important; 
-        font-weight: 900 !important; 
-        font-size: clamp(22px, 5vw, 36px) !important; 
-        cursor: pointer !important; 
-        transition: 0.3s !important; 
-        z-index: 10;
-        color: #fff !important;
-        text-shadow: 0 2px 5px rgba(0,0,0,0.8) !important;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        
-        ${conf.imgBtn ? `
-            background: url('${conf.imgBtn}') center/contain no-repeat !important;
-            background-color: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            width: 350px !important;
-            height: 150px !important;
-            padding: 0 !important;
-        ` : `
-            background: ${conf.btnColor} !important;
-            border: 3px solid #fff !important;
-            border-radius: 30px !important;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.8) !important;
-            min-width: 320px;
-            padding: 20px 60px !important;
-        `}
-    }
-    
-    .elt-btn-huge:hover { 
-        transform: scale(1.1) !important; 
-        ${!conf.imgBtn ? `background: #fff !important; color: #000 !important; text-shadow: none !important;` : `filter: drop-shadow(0 0 15px rgba(255,255,255,0.4));`}
-    }
+    .elt-btn-huge:hover { transform: scale(1.1) !important; ${!conf.imgBtn ? `background: #fff !important; color: #000 !important; text-shadow: none !important;` : `filter: drop-shadow(0 0 15px rgba(255,255,255,0.4));`} }
     
     .screen-msg { color: #fff; font-size: clamp(30px, 5vw, 50px); font-weight: 900; margin-bottom: 40px; text-align: center; text-transform: uppercase; z-index: 10;}
     #screen-win .screen-msg { color: #ffd700; text-shadow: 0 0 20px #ffd700;}
@@ -481,45 +473,15 @@ are | is | am | be</textarea>
 <div id="game-bg"></div>
 
 <div id="world-container">
-    <div id="ui-bar">
-        <div class="lives-box" id="lives-box">
-            <div class="life-icon"></div><div class="life-icon"></div><div class="life-icon"></div>
-        </div>
-        
-        <div class="right-controls">
-            <div class="counter-box" id="q-counter"></div>
-            <div class="timer-box" id="timer">00:00</div>
-            <div class="buttons-col">
-                <div class="control-btn" id="btn-audio">🔊</div>
-                <div class="control-btn" id="btn-pause">⏸️</div>
-            </div>
-        </div>
-    </div>
-
+    <div id="ui-bar"><div class="lives-box" id="lives-box"><div class="life-icon"></div><div class="life-icon"></div><div class="life-icon"></div></div><div class="right-controls"><div class="counter-box" id="q-counter"></div><div class="timer-box" id="timer">00:00</div><div class="buttons-col"><div class="control-btn" id="btn-audio">🔊</div><div class="control-btn" id="btn-pause">⏸️</div></div></div></div>
     <div id="question-banner"><div id="question-text">Question</div></div>
-    
     <div id="platforms-layer"></div>
-    
     <div id="character" class="state-idle" style="bottom: 2%;"></div>
 </div>
 
-<!-- SCREENS -->
-<div id="screen-start" class="elt-screen">
-    <div class="elt-title-huge">${conf.title}</div>
-    <button class="elt-btn-huge" id="btn-start">JUMP IN!</button>
-</div>
-
-<div id="screen-over" class="elt-screen elt-hidden">
-    <img src="${conf.imgLose}" class="screen-img lose-img">
-    <div class="screen-msg">${conf.loseText}</div>
-    <button class="elt-btn-huge" id="btn-try">RESTART</button>
-</div>
-
-<div id="screen-win" class="elt-screen elt-hidden">
-    <img src="${conf.imgWin}" class="screen-img win-img">
-    <div class="screen-msg">${conf.winText}</div>
-    <button class="elt-btn-huge" id="btn-win-restart">PLAY AGAIN</button>
-</div>
+<div id="screen-start" class="elt-screen"><div class="elt-title-huge">${conf.title}</div><button class="elt-btn-huge" id="btn-start">JUMP IN!</button></div>
+<div id="screen-over" class="elt-screen elt-hidden"><img src="${conf.imgLose}" class="screen-img lose-img"><div class="screen-msg">${conf.loseText}</div><button class="elt-btn-huge" id="btn-try">RESTART</button></div>
+<div id="screen-win" class="elt-screen elt-hidden"><img src="${conf.imgWin}" class="screen-img win-img"><div class="screen-msg">${conf.winText}</div><button class="elt-btn-huge" id="btn-win-restart">PLAY AGAIN</button></div>
 
 <script>
 (function(){
@@ -528,312 +490,79 @@ are | is | am | be</textarea>
     document.getElementById('btn-start').innerText = lang.start;
     document.getElementById('btn-win-restart').innerText = lang.restart;
     document.getElementById('btn-try').innerText = lang.restart;
-
     const TASKS = ${JSON.stringify(conf.tasks)};
     const USE_TIMER = ${conf.useTimer};
     const TIME_LIMIT = ${conf.timerSec};
-    
-    let currentLvl = 0;
-    let lives = 3;
-    let timerInt = null;
-    let timeLeft = TIME_LIMIT;
-    let isJumping = false;
-    let isPaused = false;
-    let bgScrollPos = 0;
-    
-    const BASE_BOTTOM = 2; // Высота базы в самом низу экрана
-    let currentBaseLeft = 50; 
-    let currentBaseText = "START";
-
-    // AUDIO
+    let currentLvl = 0, lives = 3, timerInt = null, timeLeft = TIME_LIMIT, isJumping = false, isPaused = false, bgScrollPos = 0;
+    let currentBaseLeft = 50, currentBaseText = "START";
+    const BASE_BOTTOM = 2;
     const bgMusic = new Audio('${conf.audioBg}'); bgMusic.loop = true; bgMusic.volume = 0.3;
     const sfxJump = new Audio('${conf.audioJump}'); sfxJump.volume = 0.8;
     const sfxFall = new Audio('${conf.audioFall}'); sfxFall.volume = 0.8;
     const sfxCorrect = new Audio('${conf.audioCorrect}'); sfxCorrect.volume = 0.8; 
     const sfxFinalWin = new Audio('${conf.audioFinalWin}'); sfxFinalWin.volume = 0.9; 
     let isMuted = false;
-
-    const gameBg = document.getElementById('game-bg');
-    const charEl = document.getElementById('character');
-    const platLayer = document.getElementById('platforms-layer');
-    const qBanner = document.getElementById('question-banner');
-    const qText = document.getElementById('question-text');
-    const livesBox = document.getElementById('lives-box');
-    const timerBox = document.getElementById('timer');
-    const qCounter = document.getElementById('q-counter');
-    const audioBtn = document.getElementById('btn-audio');
-    const pauseBtn = document.getElementById('btn-pause');
-
+    const gameBg = document.getElementById('game-bg'), charEl = document.getElementById('character'), platLayer = document.getElementById('platforms-layer'), qBanner = document.getElementById('question-banner'), qText = document.getElementById('question-text'), livesBox = document.getElementById('lives-box'), timerBox = document.getElementById('timer'), qCounter = document.getElementById('q-counter'), audioBtn = document.getElementById('btn-audio'), pauseBtn = document.getElementById('btn-pause');
     document.getElementById('btn-start').onclick = startGame;
     document.getElementById('btn-try').onclick = startGame;
     document.getElementById('btn-win-restart').onclick = startGame;
-    
-    audioBtn.onclick = () => {
-        isMuted = !isMuted;
-        audioBtn.innerText = isMuted ? '🔇' : '🔊';
-        if(isMuted) { bgMusic.pause(); sfxFinalWin.pause(); } 
-        else { 
-            if(document.getElementById('screen-win').classList.contains('elt-hidden')) bgMusic.play(); 
-        }
-    };
-
-    pauseBtn.onclick = () => {
-        if(!USE_TIMER || isJumping) return;
-        isPaused = !isPaused;
-        pauseBtn.innerText = isPaused ? '▶️' : '⏸️';
-        
-        if(isPaused) {
-            platLayer.style.opacity = '0';
-            platLayer.style.pointerEvents = 'none';
-            qBanner.style.opacity = '0';
-        } else {
-            platLayer.style.opacity = '1';
-            platLayer.style.pointerEvents = 'auto';
-            qBanner.style.opacity = '1';
-        }
-    };
-
+    audioBtn.onclick = () => { isMuted = !isMuted; audioBtn.innerText = isMuted ? '🔇' : '🔊'; if(isMuted) { bgMusic.pause(); sfxFinalWin.pause(); } else { if(document.getElementById('screen-win').classList.contains('elt-hidden')) bgMusic.play(); } };
+    pauseBtn.onclick = () => { if(!USE_TIMER || isJumping) return; isPaused = !isPaused; pauseBtn.innerText = isPaused ? '▶️' : '⏸️'; if(isPaused) { platLayer.style.opacity = '0'; platLayer.style.pointerEvents = 'none'; qBanner.style.opacity = '0'; } else { platLayer.style.opacity = '1'; platLayer.style.pointerEvents = 'auto'; qBanner.style.opacity = '1'; } };
     function startGame() {
         document.querySelectorAll('.elt-screen').forEach(el => el.classList.add('elt-hidden'));
-        currentLvl = 0;
-        lives = 3;
-        isJumping = false;
-        isPaused = false;
-        bgScrollPos = 0;
-        currentBaseLeft = 50;
-        currentBaseText = "START";
-        
-        gameBg.style.backgroundPositionY = '0%';
-        charEl.style.setProperty('--dir', 1);
-        
-        if(pauseBtn) pauseBtn.innerText = '⏸️';
-        platLayer.style.opacity = '1';
-        platLayer.style.pointerEvents = 'auto';
-        qBanner.style.opacity = '1';
-
-        updateLives();
-        sfxFinalWin.pause();
-        sfxFinalWin.currentTime = 0;
-        
-        if(!isMuted) bgMusic.play().catch(e=>console.log("Auto-play blocked"));
-        
+        currentLvl = 0; lives = 3; isJumping = false; isPaused = false; bgScrollPos = 0; currentBaseLeft = 50; currentBaseText = "START";
+        gameBg.style.backgroundPositionY = '0%'; charEl.style.setProperty('--dir', 1); if(pauseBtn) pauseBtn.innerText = '⏸️';
+        platLayer.style.opacity = '1'; platLayer.style.pointerEvents = 'auto'; qBanner.style.opacity = '1';
+        updateLives(); sfxFinalWin.pause(); sfxFinalWin.currentTime = 0; if(!isMuted) bgMusic.play().catch(e=>{});
         loadLevel(true);
     }
-
-    function startLevelTimer() {
-        if(!USE_TIMER) return;
-        timeLeft = TIME_LIMIT;
-        updateTimerDisplay();
-        clearInterval(timerInt);
-        timerInt = setInterval(tickTimer, 1000);
-    }
-
-    function tickTimer() {
-        if(isPaused) return; 
-        timeLeft--;
-        updateTimerDisplay();
-        if(timeLeft <= 0) {
-            clearInterval(timerInt);
-            triggerTimeOut();
-        }
-    }
-
-    function updateTimerDisplay() {
-        let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-        let s = (timeLeft % 60).toString().padStart(2, '0');
-        timerBox.innerText = m + ':' + s;
-        timerBox.style.color = timeLeft <= 10 ? '#ff4757' : '#fff';
-    }
-
-    function updateLives() {
-        let icons = livesBox.children;
-        for(let i=0; i<3; i++) {
-            if(i < lives) icons[i].classList.remove('lost');
-            else icons[i].classList.add('lost');
-        }
-    }
-
-    function resetCharacterToBase() {
-        charEl.className = 'state-idle';
-        charEl.style.transition = 'none';
-        charEl.style.bottom = (BASE_BOTTOM + 7) + '%'; 
-        charEl.style.left = currentBaseLeft + '%';
-        
-        void charEl.offsetWidth; 
-        
-        charEl.style.transition = ''; 
-    }
-
+    function startLevelTimer() { if(!USE_TIMER) return; timeLeft = TIME_LIMIT; updateTimerDisplay(); clearInterval(timerInt); timerInt = setInterval(tickTimer, 1000); }
+    function tickTimer() { if(isPaused) return; timeLeft--; updateTimerDisplay(); if(timeLeft <= 0) { clearInterval(timerInt); triggerTimeOut(); } }
+    function updateTimerDisplay() { let m = Math.floor(timeLeft / 60).toString().padStart(2, '0'); let s = (timeLeft % 60).toString().padStart(2, '0'); timerBox.innerText = m + ':' + s; timerBox.style.color = timeLeft <= 10 ? '#ff4757' : '#fff'; }
+    function updateLives() { let icons = livesBox.children; for(let i=0; i<3; i++) { if(i < lives) icons[i].classList.remove('lost'); else icons[i].classList.add('lost'); } }
+    function resetCharacterToBase() { charEl.className = 'state-idle'; charEl.style.transition = 'none'; charEl.style.bottom = (BASE_BOTTOM + 7) + '%'; charEl.style.left = currentBaseLeft + '%'; void charEl.offsetWidth; charEl.style.transition = ''; }
     function loadLevel(isFirstLevel) {
         if(currentLvl >= TASKS.length) { winGame(); return; }
-        
-        // ОБНОВЛЕНИЕ СЧЕТЧИКА
         qCounter.innerText = (currentLvl + 1) + ' / ' + TASKS.length;
-        
-        let task = TASKS[currentLvl];
-        qText.innerText = task.q;
-        qBanner.classList.remove('hidden');
-        
-        platLayer.style.transition = 'none';
-        platLayer.style.transform = 'translateY(0)';
-        platLayer.innerHTML = '';
-        
-        // Базовая платформа
+        let task = TASKS[currentLvl]; qText.innerText = task.q; qBanner.classList.remove('hidden');
+        platLayer.style.transition = 'none'; platLayer.style.transform = 'translateY(0)'; platLayer.innerHTML = '';
         let startPlat = createPlatform(currentBaseText, true, currentBaseLeft, BASE_BOTTOM);
-        
-        startPlat.querySelector('.platform-text').style.opacity = '0'; 
-        
-        startPlat.style.pointerEvents = 'none'; 
-        platLayer.appendChild(startPlat);
-        
+        startPlat.querySelector('.platform-text').style.opacity = '0'; startPlat.style.pointerEvents = 'none'; platLayer.appendChild(startPlat);
         if(isFirstLevel) resetCharacterToBase();
-        
-        let options = [{t: task.correct, c: true}];
-        task.wrongs.forEach(w => options.push({t: w, c: false}));
-        options.sort(() => Math.random() - 0.5);
-        
-        let colWidth = 100 / options.length;
-        
-        options.forEach((opt, idx) => {
-            let rx = (idx * colWidth) + (Math.random() * (colWidth - 25)) + 12;
-            let ry = 20 + Math.random() * 30; 
-            
-            let pWrap = createPlatform(opt.t, opt.c, rx, ry);
-            pWrap.onclick = () => performJump(pWrap, opt.c, rx, ry, opt.t);
-            platLayer.appendChild(pWrap);
-        });
-        
+        let options = [{t: task.correct, c: true}]; task.wrongs.forEach(w => options.push({t: w, c: false}));
+        options.sort(() => Math.random() - 0.5); let colWidth = 100 / options.length;
+        options.forEach((opt, idx) => { let rx = (idx * colWidth) + (Math.random() * (colWidth - 25)) + 12; let ry = 20 + Math.random() * 30; let pWrap = createPlatform(opt.t, opt.c, rx, ry); pWrap.onclick = () => performJump(pWrap, opt.c, rx, ry, opt.t); platLayer.appendChild(pWrap); });
         startLevelTimer();
     }
-
-    function createPlatform(text, isCorrect, x, y) {
-        let pWrap = document.createElement('div');
-        pWrap.className = 'platform-wrap';
-        pWrap.dataset.correct = isCorrect;
-        pWrap.style.left = x + '%';
-        pWrap.style.bottom = y + '%';
-        
-        let pText = document.createElement('div');
-        pText.className = 'platform-text';
-        pText.innerText = text;
-        
-        let pImg = document.createElement('div');
-        pImg.className = 'platform-img';
-        
-        pWrap.appendChild(pText);
-        pWrap.appendChild(pImg);
-        return pWrap;
-    }
-
-    function triggerTimeOut() {
-        if(isJumping || isPaused) return;
-        isJumping = true;
-        
-        if(!isMuted) { sfxFall.currentTime = 0; sfxFall.play(); }
-        
-        charEl.className = 'state-fall';
-        charEl.style.bottom = '-30%'; 
-        
-        lives--;
-        updateLives();
-        
-        setTimeout(() => {
-            if(lives <= 0) gameOver();
-            else {
-                resetCharacterToBase();
-                isJumping = false;
-                startLevelTimer(); 
-            }
-        }, 1000); 
-    }
-
+    function createPlatform(text, isCorrect, x, y) { let pWrap = document.createElement('div'); pWrap.className = 'platform-wrap'; pWrap.dataset.correct = isCorrect; pWrap.style.left = x + '%'; pWrap.style.bottom = y + '%'; let pText = document.createElement('div'); pText.className = 'platform-text'; pText.innerText = text; let pImg = document.createElement('div'); pImg.className = 'platform-img'; pWrap.appendChild(pText); pWrap.appendChild(pImg); return pWrap; }
+    function triggerTimeOut() { if(isJumping || isPaused) return; isJumping = true; if(!isMuted) { sfxFall.currentTime = 0; sfxFall.play(); } charEl.className = 'state-fall'; charEl.style.bottom = '-30%'; lives--; updateLives(); setTimeout(() => { if(lives <= 0) gameOver(); else { resetCharacterToBase(); isJumping = false; startLevelTimer(); } }, 1000); }
     function performJump(targetPlat, isCorrect, targetX, targetY, platText) {
-        if(isJumping || isPaused) return;
-        isJumping = true;
-        clearInterval(timerInt); 
-        
-        let charX = parseFloat(charEl.style.left) || 50;
-        
-        if(targetX < charX) charEl.style.setProperty('--dir', -1);
-        else charEl.style.setProperty('--dir', 1);
-
+        if(isJumping || isPaused) return; isJumping = true; clearInterval(timerInt);
+        let charX = parseFloat(charEl.style.left) || 50; if(targetX < charX) charEl.style.setProperty('--dir', -1); else charEl.style.setProperty('--dir', 1);
         if(!isMuted) { sfxJump.currentTime = 0; sfxJump.play(); }
-
-        charEl.className = 'state-idle';
-        charEl.style.bottom = (targetY + 7) + '%';
-        charEl.style.left = targetX + '%';
-
-        // Прыжок занимает 500мс
+        charEl.className = 'state-idle'; charEl.style.bottom = (targetY + 7) + '%'; charEl.style.left = targetX + '%';
         setTimeout(() => {
             let txtEl = targetPlat.querySelector('.platform-text');
-            
             if(isCorrect) {
-                txtEl.classList.add('correct-ans');
-                currentBaseText = platText; 
-                
-                if(!isMuted) { sfxCorrect.currentTime = 0; sfxCorrect.play(); }
-                
-                // УСКОРЕНА ПАУЗА ДО ПАДЕНИЯ КАМЕРЫ (было 1000мс, стало 350мс)
+                txtEl.classList.add('correct-ans'); currentBaseText = platText; if(!isMuted) { sfxCorrect.currentTime = 0; sfxCorrect.play(); }
                 setTimeout(() => {
-                    qBanner.classList.add('hidden');
-                    
-                    let dropDist = targetY - BASE_BOTTOM; 
-                    
-                    platLayer.style.transition = 'transform 0.8s ease-in-out';
-                    platLayer.style.transform = \`translateY(\${dropDist}vh)\`;
-                    
-                    charEl.className = 'state-cam-drop';
-                    charEl.style.bottom = (BASE_BOTTOM + 7) + '%';
-                    
-                    bgScrollPos += dropDist * 0.4; 
-                    gameBg.style.backgroundPositionY = bgScrollPos + '%';
-                    
-                    setTimeout(() => {
-                        currentBaseLeft = targetX; 
-                        currentLvl++;
-                        charEl.className = 'state-idle'; 
-                        loadLevel(false); 
-                        isJumping = false;
-                    }, 850); // Время спуска камеры вниз
-
-                }, 350); 
+                    qBanner.classList.add('hidden'); let dropDist = targetY - BASE_BOTTOM;
+                    platLayer.style.transition = 'transform 0.8s ease-in-out'; platLayer.style.transform = \`translateY(\${dropDist}vh)\`;
+                    charEl.className = 'state-cam-drop'; charEl.style.bottom = (BASE_BOTTOM + 7) + '%';
+                    bgScrollPos += dropDist * 0.4; gameBg.style.backgroundPositionY = bgScrollPos + '%';
+                    setTimeout(() => { currentBaseLeft = targetX; currentLvl++; charEl.className = 'state-idle'; loadLevel(false); isJumping = false; }, 850);
+                }, 350);
             } else {
-                txtEl.classList.add('wrong-ans');
-                
-                if(!isMuted) { sfxFall.currentTime = 0; sfxFall.play(); }
-                
+                txtEl.classList.add('wrong-ans'); if(!isMuted) { sfxFall.currentTime = 0; sfxFall.play(); }
                 setTimeout(() => {
-                    charEl.className = 'state-fall';
-                    charEl.style.bottom = '-30%'; 
-                    
-                    lives--;
-                    updateLives();
-                    
-                    setTimeout(() => {
-                        if(lives <= 0) gameOver();
-                        else {
-                            resetCharacterToBase();
-                            txtEl.classList.remove('wrong-ans');
-                            isJumping = false;
-                            startLevelTimer(); 
-                        }
-                    }, 1000); 
-                }, 200); // Чуть ускорено время до начала падения при ошибке
+                    charEl.className = 'state-fall'; charEl.style.bottom = '-30%'; lives--; updateLives();
+                    setTimeout(() => { if(lives <= 0) gameOver(); else { resetCharacterToBase(); txtEl.classList.remove('wrong-ans'); isJumping = false; startLevelTimer(); } }, 1000);
+                }, 200);
             }
-        }, 500); 
+        }, 500);
     }
-
-    function gameOver() {
-        clearInterval(timerInt);
-        document.getElementById('screen-over').classList.remove('elt-hidden');
-    }
-
-    function winGame() {
-        clearInterval(timerInt);
-        bgMusic.pause();
-        if(!isMuted) { sfxFinalWin.currentTime = 0; sfxFinalWin.play(); }
-        document.getElementById('screen-win').classList.remove('elt-hidden');
-    }
+    function gameOver() { clearInterval(timerInt); document.getElementById('screen-over').classList.remove('elt-hidden'); }
+    function winGame() { clearInterval(timerInt); bgMusic.pause(); if(!isMuted) { sfxFinalWin.currentTime = 0; sfxFinalWin.play(); } document.getElementById('screen-win').classList.remove('elt-hidden'); }
 })();
 <\/script>
 </body>
