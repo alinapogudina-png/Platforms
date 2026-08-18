@@ -38,8 +38,8 @@
 
         #previewFrame { width: 100%; flex: 1; border: 2px dashed #4b4b6a; border-radius: 15px; background-color: #2a2a35;}
         
-        button.gen-btn { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 800; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4); margin-top: 20px;}
-        button.gen-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(108, 92, 231, 0.6); }
+        button.gen-btn { color: #fff; padding: 14px 15px; border: none; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 800; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); }
+        button.gen-btn:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); }
         
         #generated-code { height: 60px; margin-top: 10px; background: #1a1a24; border-color: #4b4b6a; color: #4ae38c; font-family: monospace; font-size: 11px;}
         .hint { font-size: 11px; color: #8e8eaf; margin-top: 4px; line-height: 1.3;}
@@ -176,7 +176,6 @@
             <div class="hint">Ссылки на аудио или файлы (до 5 МБ).</div>
         </div>
 
-        <!-- НАСТРОЙКИ ТАЙМЕРА И ПАУЗЫ -->
         <div class="form-group" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;">
             <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
                 <label class="checkbox-label" style="margin: 0;">
@@ -273,7 +272,9 @@ done | did | do | doing
 are | is | am | be</textarea>
             </div>
         </div>
-        <div class="hint">От 2 до 4 вариантов ответа. Первый ответ всегда правильный. Платформы генерируются случайно.</div>
+        <div class="hint">
+            • Первый вариант в ответе всегда правильный, остальные — неверные варианты для платформ.
+        </div>
 
         <h3>Финальные экраны</h3>
         <div class="flex-row">
@@ -299,7 +300,14 @@ are | is | am | be</textarea>
             <div class="form-group flex-col"><label>Текст Проигрыша</label><input type="text" id="loseText" value="GAME OVER!" oninput="debounceGenerate()"></div>
         </div>
 
-        <button class="gen-btn" id="copyBtn" onclick="copyCode()">СГЕНЕРИРОВАТЬ IFRAME-КОД</button>
+        <div class="flex-row" style="margin-top:15px; gap:10px;">
+            <button class="gen-btn" onclick="saveProject()" style="flex:1; background: linear-gradient(135deg, #00b894, #55efc4);">Сохранить проект</button>
+            <button class="gen-btn" onclick="document.getElementById('file-project').click()" style="flex:1; background: linear-gradient(135deg, #e17055, #fab1a0);">Загрузить проект</button>
+        </div>
+        <div class="flex-row" style="margin-top:10px; gap:10px;">
+            <button class="gen-btn" id="downloadHtmlBtn" onclick="downloadHtmlFile()" style="flex:1; background: linear-gradient(135deg, #6c5ce7, #a29bfe);">Скачать HTML файл</button>
+            <button class="gen-btn" id="copyIframeBtn" onclick="copyIframeCode()" style="flex:1; background: linear-gradient(135deg, #0984e3, #74b9ff);">Скопировать iframe</button>
+        </div>
         <textarea id="generated-code" readonly placeholder="Ваш код появится здесь..."></textarea>
     </div>
 
@@ -308,30 +316,121 @@ are | is | am | be</textarea>
         <iframe id="previewFrame" src="" frameborder="0" allow="autoplay"></iframe>
     </div>
 
+    <input type="file" id="file-project" accept=".json" style="display:none;" onchange="loadProject(event)">
+
     <script>
-        function handleFileUpload(event) {
+        function fileToBase64(event) {
             const fileInput = event.target;
             const targetInputId = fileInput.dataset.target;
             const sizeLimit = parseInt(fileInput.dataset.limit);
             const targetInput = document.getElementById(targetInputId);
-
             const file = fileInput.files[0];
             if (!file) return;
-
             if (file.size > sizeLimit) {
                 alert(`Файл слишком большой! Макс. размер: ${(sizeLimit / 1024 / 1024).toFixed(1)} МБ.`);
                 fileInput.value = '';
                 return;
             }
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 targetInput.value = e.target.result;
                 debounceGenerate();
             };
-            reader.onerror = () => alert('Не удалось прочитать файл.');
             reader.readAsDataURL(file);
             fileInput.value = '';
+        }
+
+        function handleFileUpload(event) { fileToBase64(event); }
+
+        function saveProject() {
+            const projectData = {
+                uiLang: document.getElementById('uiLang').value,
+                gameTitle: document.getElementById('gameTitle').value,
+                imgBg: document.getElementById('imgBg').value,
+                imgChar: document.getElementById('imgChar').value,
+                charSize: document.getElementById('charSize').value,
+                platSize: document.getElementById('platSize').value,
+                imgPlat: document.getElementById('imgPlat').value,
+                imgLife: document.getElementById('imgLife').value,
+                audioJump: document.getElementById('audioJump').value,
+                audioFall: document.getElementById('audioFall').value,
+                audioCorrect: document.getElementById('audioCorrect').value,
+                audioFinalWin: document.getElementById('audioFinalWin').value,
+                audioBg: document.getElementById('audioBg').value,
+                useTimer: document.getElementById('useTimer').checked,
+                allowPause: document.getElementById('allowPause').checked,
+                timerSec: document.getElementById('timerSec').value,
+                qFont: document.getElementById('qFont').value,
+                aFont: document.getElementById('aFont').value,
+                qColor: document.getElementById('qColor').value,
+                aColor: document.getElementById('aColor').value,
+                btnColor: document.getElementById('btnColor').value,
+                imgBtn: document.getElementById('imgBtn').value,
+                useNeon: document.getElementById('useNeon').checked,
+                neonColor: document.getElementById('neonColor').value,
+                qList: document.getElementById('qList').value,
+                aList: document.getElementById('aList').value,
+                imgWin: document.getElementById('imgWin').value,
+                winText: document.getElementById('winText').value,
+                imgLose: document.getElementById('imgLose').value,
+                loseText: document.getElementById('loseText').value
+            };
+            const jsonStr = JSON.stringify(projectData, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = (projectData.gameTitle.trim() || 'jump_quiz') + '_project.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function loadProject(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if(data.uiLang !== undefined) document.getElementById('uiLang').value = data.uiLang;
+                    if(data.gameTitle !== undefined) document.getElementById('gameTitle').value = data.gameTitle;
+                    if(data.imgBg !== undefined) document.getElementById('imgBg').value = data.imgBg;
+                    if(data.imgChar !== undefined) document.getElementById('imgChar').value = data.imgChar;
+                    if(data.charSize !== undefined) { document.getElementById('charSize').value = data.charSize; updateVal('charSize', 'charSizeVal'); }
+                    if(data.platSize !== undefined) { document.getElementById('platSize').value = data.platSize; updateVal('platSize', 'platSizeVal'); }
+                    if(data.imgPlat !== undefined) document.getElementById('imgPlat').value = data.imgPlat;
+                    if(data.imgLife !== undefined) document.getElementById('imgLife').value = data.imgLife;
+                    if(data.audioJump !== undefined) document.getElementById('audioJump').value = data.audioJump;
+                    if(data.audioFall !== undefined) document.getElementById('audioFall').value = data.audioFall;
+                    if(data.audioCorrect !== undefined) document.getElementById('audioCorrect').value = data.audioCorrect;
+                    if(data.audioFinalWin !== undefined) document.getElementById('audioFinalWin').value = data.audioFinalWin;
+                    if(data.audioBg !== undefined) document.getElementById('audioBg').value = data.audioBg;
+                    if(data.useTimer !== undefined) document.getElementById('useTimer').checked = data.useTimer;
+                    if(data.allowPause !== undefined) document.getElementById('allowPause').checked = data.allowPause;
+                    if(data.timerSec !== undefined) document.getElementById('timerSec').value = data.timerSec;
+                    if(data.qFont !== undefined) document.getElementById('qFont').value = data.qFont;
+                    if(data.aFont !== undefined) document.getElementById('aFont').value = data.aFont;
+                    if(data.qColor !== undefined) document.getElementById('qColor').value = data.qColor;
+                    if(data.aColor !== undefined) document.getElementById('aColor').value = data.aColor;
+                    if(data.btnColor !== undefined) document.getElementById('btnColor').value = data.btnColor;
+                    if(data.imgBtn !== undefined) document.getElementById('imgBtn').value = data.imgBtn;
+                    if(data.useNeon !== undefined) document.getElementById('useNeon').checked = data.useNeon;
+                    if(data.neonColor !== undefined) document.getElementById('neonColor').value = data.neonColor;
+                    if(data.qList !== undefined) document.getElementById('qList').value = data.qList;
+                    if(data.aList !== undefined) document.getElementById('aList').value = data.aList;
+                    if(data.imgWin !== undefined) document.getElementById('imgWin').value = data.imgWin;
+                    if(data.winText !== undefined) document.getElementById('winText').value = data.winText;
+                    if(data.imgLose !== undefined) document.getElementById('imgLose').value = data.imgLose;
+                    if(data.loseText !== undefined) document.getElementById('loseText').value = data.loseText;
+                    debounceGenerate();
+                    event.target.value = '';
+                } catch(err) {
+                    alert('Ошибка при чтении файла проекта: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
         }
 
         function updateVal(inputId, displayId) {
@@ -345,7 +444,7 @@ are | is | am | be</textarea>
             let count = Math.min(qLines.length, aLines.length, 30);
             for(let i=0; i<count; i++) {
                 let opts = aLines[i].split('|').map(o => o.trim()).filter(o => o !== '');
-                if(opts.length > 1) {
+                if(opts.length > 0) {
                     tasks.push({ q: qLines[i], correct: opts[0], wrongs: opts.slice(1, 4) });
                 }
             }
@@ -503,11 +602,13 @@ are | is | am | be</textarea>
     const sfxFinalWin = new Audio('${conf.audioFinalWin}'); sfxFinalWin.volume = 0.9; 
     let isMuted = false;
     const gameBg = document.getElementById('game-bg'), charEl = document.getElementById('character'), platLayer = document.getElementById('platforms-layer'), qBanner = document.getElementById('question-banner'), qText = document.getElementById('question-text'), livesBox = document.getElementById('lives-box'), timerBox = document.getElementById('timer'), qCounter = document.getElementById('q-counter'), audioBtn = document.getElementById('btn-audio'), pauseBtn = document.getElementById('btn-pause');
+    
     document.getElementById('btn-start').onclick = startGame;
     document.getElementById('btn-try').onclick = startGame;
     document.getElementById('btn-win-restart').onclick = startGame;
     audioBtn.onclick = () => { isMuted = !isMuted; audioBtn.innerText = isMuted ? '🔇' : '🔊'; if(isMuted) { bgMusic.pause(); sfxFinalWin.pause(); } else { if(document.getElementById('screen-win').classList.contains('elt-hidden')) bgMusic.play(); } };
     pauseBtn.onclick = () => { if(!USE_TIMER || isJumping) return; isPaused = !isPaused; pauseBtn.innerText = isPaused ? '▶️' : '⏸️'; if(isPaused) { platLayer.style.opacity = '0'; platLayer.style.pointerEvents = 'none'; qBanner.style.opacity = '0'; } else { platLayer.style.opacity = '1'; platLayer.style.pointerEvents = 'auto'; qBanner.style.opacity = '1'; } };
+    
     function startGame() {
         document.querySelectorAll('.elt-screen').forEach(el => el.classList.add('elt-hidden'));
         currentLvl = 0; lives = 3; isJumping = false; isPaused = false; bgScrollPos = 0; currentBaseLeft = 50; currentBaseText = "START";
@@ -521,21 +622,27 @@ are | is | am | be</textarea>
     function updateTimerDisplay() { let m = Math.floor(timeLeft / 60).toString().padStart(2, '0'); let s = (timeLeft % 60).toString().padStart(2, '0'); timerBox.innerText = m + ':' + s; timerBox.style.color = timeLeft <= 10 ? '#ff4757' : '#fff'; }
     function updateLives() { let icons = livesBox.children; for(let i=0; i<3; i++) { if(i < lives) icons[i].classList.remove('lost'); else icons[i].classList.add('lost'); } }
     function resetCharacterToBase() { charEl.className = 'state-idle'; charEl.style.transition = 'none'; charEl.style.bottom = (BASE_BOTTOM + 7) + '%'; charEl.style.left = currentBaseLeft + '%'; void charEl.offsetWidth; charEl.style.transition = ''; }
+    
     function loadLevel(isFirstLevel) {
         if(currentLvl >= TASKS.length) { winGame(); return; }
         qCounter.innerText = (currentLvl + 1) + ' / ' + TASKS.length;
         let task = TASKS[currentLvl]; qText.innerText = task.q; qBanner.classList.remove('hidden');
         platLayer.style.transition = 'none'; platLayer.style.transform = 'translateY(0)'; platLayer.innerHTML = '';
+        
         let startPlat = createPlatform(currentBaseText, true, currentBaseLeft, BASE_BOTTOM);
         startPlat.querySelector('.platform-text').style.opacity = '0'; startPlat.style.pointerEvents = 'none'; platLayer.appendChild(startPlat);
         if(isFirstLevel) resetCharacterToBase();
+        
         let options = [{t: task.correct, c: true}]; task.wrongs.forEach(w => options.push({t: w, c: false}));
         options.sort(() => Math.random() - 0.5); let colWidth = 100 / options.length;
         options.forEach((opt, idx) => { let rx = (idx * colWidth) + (Math.random() * (colWidth - 25)) + 12; let ry = 20 + Math.random() * 30; let pWrap = createPlatform(opt.t, opt.c, rx, ry); pWrap.onclick = () => performJump(pWrap, opt.c, rx, ry, opt.t); platLayer.appendChild(pWrap); });
         startLevelTimer();
     }
+
     function createPlatform(text, isCorrect, x, y) { let pWrap = document.createElement('div'); pWrap.className = 'platform-wrap'; pWrap.dataset.correct = isCorrect; pWrap.style.left = x + '%'; pWrap.style.bottom = y + '%'; let pText = document.createElement('div'); pText.className = 'platform-text'; pText.innerText = text; let pImg = document.createElement('div'); pImg.className = 'platform-img'; pWrap.appendChild(pText); pWrap.appendChild(pImg); return pWrap; }
+    
     function triggerTimeOut() { if(isJumping || isPaused) return; isJumping = true; if(!isMuted) { sfxFall.currentTime = 0; sfxFall.play(); } charEl.className = 'state-fall'; charEl.style.bottom = '-30%'; lives--; updateLives(); setTimeout(() => { if(lives <= 0) gameOver(); else { resetCharacterToBase(); isJumping = false; startLevelTimer(); } }, 1000); }
+    
     function performJump(targetPlat, isCorrect, targetX, targetY, platText) {
         if(isJumping || isPaused) return; isJumping = true; clearInterval(timerInt);
         let charX = parseFloat(charEl.style.left) || 50; if(targetX < charX) charEl.style.setProperty('--dir', -1); else charEl.style.setProperty('--dir', 1);
@@ -561,6 +668,7 @@ are | is | am | be</textarea>
             }
         }, 500);
     }
+
     function gameOver() { clearInterval(timerInt); document.getElementById('screen-over').classList.remove('elt-hidden'); }
     function winGame() { clearInterval(timerInt); bgMusic.pause(); if(!isMuted) { sfxFinalWin.currentTime = 0; sfxFinalWin.play(); } document.getElementById('screen-win').classList.remove('elt-hidden'); }
 })();
@@ -575,17 +683,35 @@ are | is | am | be</textarea>
             document.getElementById('previewFrame').srcdoc = innerHTML;
         }
 
-        function copyCode() {
+        function downloadHtmlFile() {
             generateCode(); 
+            const htmlContent = document.getElementById('previewFrame').srcdoc;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = (document.getElementById('gameTitle').value.trim().toLowerCase().replace(/[^a-z0-9]/g, '_') || 'jump_quiz') + '.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            const btn = document.getElementById('downloadHtmlBtn');
+            btn.innerText = 'ФАЙЛ СКАЧАН!';
+            setTimeout(() => { 
+                btn.innerText = 'Скачать HTML файл'; 
+            }, 2000);
+        }
+
+        function copyIframeCode() {
+            generateCode();
             const codeArea = document.getElementById('generated-code');
             codeArea.select();
             document.execCommand('copy');
-            const btn = document.getElementById('copyBtn');
-            btn.innerText = 'СКОПИРОВАНО!';
-            btn.style.background = '#2ecc71';
+            const btn = document.getElementById('copyIframeBtn');
+            btn.innerText = 'IFRAME СКОПИРОВАН!';
             setTimeout(() => { 
-                btn.innerText = 'СГЕНЕРИРОВАТЬ IFRAME-КОД'; 
-                btn.style.background = 'linear-gradient(135deg, #6c5ce7, #a29bfe)';
+                btn.innerText = 'Скопировать iframe'; 
             }, 2000);
         }
 
@@ -600,7 +726,6 @@ are | is | am | be</textarea>
             el.addEventListener('change', debounceGenerate);
         });
 
-        // Первичный запуск генератора с установкой значений слайдеров
         updateVal('charSize', 'charSizeVal');
         updateVal('platSize', 'platSizeVal');
         debounceGenerate();
