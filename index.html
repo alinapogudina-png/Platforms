@@ -75,6 +75,12 @@
                 <input type="text" id="gameTitle" value="JUMP QUIZ!" oninput="debounceGenerate()">
             </div>
         </div>
+        <div class="flex-row">
+            <div class="form-group flex-col">
+                <label>Количество жизней</label>
+                <input type="number" id="livesCount" value="3" min="1" max="10" oninput="debounceGenerate()">
+            </div>
+        </div>
 
         <h3>Графика и Звуки</h3>
         <div class="flex-row">
@@ -346,6 +352,7 @@ are | is | am | be</textarea>
             const projectData = {
                 uiLang: document.getElementById('uiLang').value,
                 gameTitle: document.getElementById('gameTitle').value,
+                livesCount: document.getElementById('livesCount').value,
                 imgBg: document.getElementById('imgBg').value,
                 imgChar: document.getElementById('imgChar').value,
                 charSize: document.getElementById('charSize').value,
@@ -396,6 +403,7 @@ are | is | am | be</textarea>
                     const data = JSON.parse(e.target.result);
                     if(data.uiLang !== undefined) document.getElementById('uiLang').value = data.uiLang;
                     if(data.gameTitle !== undefined) document.getElementById('gameTitle').value = data.gameTitle;
+                    if(data.livesCount !== undefined) document.getElementById('livesCount').value = data.livesCount;
                     if(data.imgBg !== undefined) document.getElementById('imgBg').value = data.imgBg;
                     if(data.imgChar !== undefined) document.getElementById('imgChar').value = data.imgChar;
                     if(data.charSize !== undefined) { document.getElementById('charSize').value = data.charSize; updateVal('charSize', 'charSizeVal'); }
@@ -453,6 +461,7 @@ are | is | am | be</textarea>
             return {
                 lang: document.getElementById('uiLang').value,
                 title: document.getElementById('gameTitle').value,
+                livesCount: parseInt(document.getElementById('livesCount').value) || 3,
                 qFont: document.getElementById('qFont').value,
                 aFont: document.getElementById('aFont').value,
                 qColor: document.getElementById('qColor').value,
@@ -487,6 +496,12 @@ are | is | am | be</textarea>
             const conf = getInputs();
             const platHeight = Math.round(conf.platSize * 0.6);
 
+            // Generate initial life-icon HTML elements depending on conf.livesCount
+            let lifeIconsHtml = '';
+            for(let i=0; i<conf.livesCount; i++) {
+                lifeIconsHtml += `<div class="life-icon"></div>`;
+            }
+
             const innerHTML = `<!DOCTYPE html>
 <html lang="${conf.lang.toLowerCase()}">
 <head>
@@ -502,7 +517,7 @@ are | is | am | be</textarea>
     #world-container { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 10;}
 
     #ui-bar { position: absolute; top: 0; left: 0; right: 0; padding: 15px 20px; display: flex; justify-content: space-between; align-items: flex-start; z-index: 50;}
-    .lives-box { display: flex; gap: 8px; }
+    .lives-box { display: flex; gap: 8px; flex-wrap: wrap; max-width: 50%; }
     .life-icon { width: 35px; height: 35px; background: url('${conf.imgLife}') center/contain no-repeat; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); transition: 0.3s;}
     .life-icon.lost { opacity: 0; transform: scale(0.2); }
     
@@ -572,7 +587,7 @@ are | is | am | be</textarea>
 <div id="game-bg"></div>
 
 <div id="world-container">
-    <div id="ui-bar"><div class="lives-box" id="lives-box"><div class="life-icon"></div><div class="life-icon"></div><div class="life-icon"></div></div><div class="right-controls"><div class="counter-box" id="q-counter"></div><div class="timer-box" id="timer">00:00</div><div class="buttons-col"><div class="control-btn" id="btn-audio">🔊</div><div class="control-btn" id="btn-pause">⏸️</div></div></div></div>
+    <div id="ui-bar"><div class="lives-box" id="lives-box">${lifeIconsHtml}</div><div class="right-controls"><div class="counter-box" id="q-counter"></div><div class="timer-box" id="timer">00:00</div><div class="buttons-col"><div class="control-btn" id="btn-audio">🔊</div><div class="control-btn" id="btn-pause">⏸️</div></div></div></div>
     <div id="question-banner"><div id="question-text">Question</div></div>
     <div id="platforms-layer"></div>
     <div id="character" class="state-idle" style="bottom: 2%;"></div>
@@ -592,7 +607,8 @@ are | is | am | be</textarea>
     const TASKS = ${JSON.stringify(conf.tasks)};
     const USE_TIMER = ${conf.useTimer};
     const TIME_LIMIT = ${conf.timerSec};
-    let currentLvl = 0, lives = 3, timerInt = null, timeLeft = TIME_LIMIT, isJumping = false, isPaused = false, bgScrollPos = 0;
+    const MAX_LIVES = ${conf.livesCount};
+    let currentLvl = 0, lives = MAX_LIVES, timerInt = null, timeLeft = TIME_LIMIT, isJumping = false, isPaused = false, bgScrollPos = 0;
     let currentBaseLeft = 50, currentBaseText = "START";
     const BASE_BOTTOM = 2;
     const bgMusic = new Audio('${conf.audioBg}'); bgMusic.loop = true; bgMusic.volume = 0.3;
@@ -611,7 +627,7 @@ are | is | am | be</textarea>
     
     function startGame() {
         document.querySelectorAll('.elt-screen').forEach(el => el.classList.add('elt-hidden'));
-        currentLvl = 0; lives = 3; isJumping = false; isPaused = false; bgScrollPos = 0; currentBaseLeft = 50; currentBaseText = "START";
+        currentLvl = 0; lives = MAX_LIVES; isJumping = false; isPaused = false; bgScrollPos = 0; currentBaseLeft = 50; currentBaseText = "START";
         gameBg.style.backgroundPositionY = '0%'; charEl.style.setProperty('--dir', 1); if(pauseBtn) pauseBtn.innerText = '⏸️';
         platLayer.style.opacity = '1'; platLayer.style.pointerEvents = 'auto'; qBanner.style.opacity = '1';
         updateLives(); sfxFinalWin.pause(); sfxFinalWin.currentTime = 0; if(!isMuted) bgMusic.play().catch(e=>{});
@@ -620,7 +636,7 @@ are | is | am | be</textarea>
     function startLevelTimer() { if(!USE_TIMER) return; timeLeft = TIME_LIMIT; updateTimerDisplay(); clearInterval(timerInt); timerInt = setInterval(tickTimer, 1000); }
     function tickTimer() { if(isPaused) return; timeLeft--; updateTimerDisplay(); if(timeLeft <= 0) { clearInterval(timerInt); triggerTimeOut(); } }
     function updateTimerDisplay() { let m = Math.floor(timeLeft / 60).toString().padStart(2, '0'); let s = (timeLeft % 60).toString().padStart(2, '0'); timerBox.innerText = m + ':' + s; timerBox.style.color = timeLeft <= 10 ? '#ff4757' : '#fff'; }
-    function updateLives() { let icons = livesBox.children; for(let i=0; i<3; i++) { if(i < lives) icons[i].classList.remove('lost'); else icons[i].classList.add('lost'); } }
+    function updateLives() { let icons = livesBox.children; for(let i=0; i<MAX_LIVES; i++) { if(i < lives) icons[i].classList.remove('lost'); else icons[i].classList.add('lost'); } }
     function resetCharacterToBase() { charEl.className = 'state-idle'; charEl.style.transition = 'none'; charEl.style.bottom = (BASE_BOTTOM + 7) + '%'; charEl.style.left = currentBaseLeft + '%'; void charEl.offsetWidth; charEl.style.transition = ''; }
     
     function loadLevel(isFirstLevel) {
@@ -654,7 +670,7 @@ are | is | am | be</textarea>
                 txtEl.classList.add('correct-ans'); currentBaseText = platText; if(!isMuted) { sfxCorrect.currentTime = 0; sfxCorrect.play(); }
                 setTimeout(() => {
                     qBanner.classList.add('hidden'); let dropDist = targetY - BASE_BOTTOM;
-                    platLayer.style.transition = 'transform 0.8s ease-in-out'; platLayer.style.transform = \`translateY(\${dropDist}vh)\`;
+                    platLayer.style.transition = 'transform 0.8s ease-in-out'; platLayer.style.transform = 'translateY(' + dropDist + 'vh)';
                     charEl.className = 'state-cam-drop'; charEl.style.bottom = (BASE_BOTTOM + 7) + '%';
                     bgScrollPos += dropDist * 0.4; gameBg.style.backgroundPositionY = bgScrollPos + '%';
                     setTimeout(() => { currentBaseLeft = targetX; currentLvl++; charEl.className = 'state-idle'; loadLevel(false); isJumping = false; }, 850);
