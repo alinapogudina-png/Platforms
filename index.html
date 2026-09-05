@@ -107,11 +107,15 @@
         <div class="flex-row" style="background: rgba(0,0,0,0.2); padding: 10px 15px; border-radius: 10px; margin-bottom: 15px;">
             <div class="form-group flex-col" style="margin-bottom: 0;">
                 <label>Размер персонажа <span id="charSizeVal" class="val-display">100px</span></label>
-                <input type="range" id="charSize" min="50" max="250" value="100" oninput="updateVal('charSize', 'charSizeVal'); debounceGenerate()">
+                <input type="range" id="charSize" min="50" max="250" value="100" oninput="updateVal('charSize', 'charSizeVal', 'px'); debounceGenerate()">
             </div>
             <div class="form-group flex-col" style="margin-bottom: 0;">
                 <label>Размер платформы <span id="platSizeVal" class="val-display">130px</span></label>
-                <input type="range" id="platSize" min="80" max="350" value="130" oninput="updateVal('platSize', 'platSizeVal'); debounceGenerate()">
+                <input type="range" id="platSize" min="80" max="350" value="130" oninput="updateVal('platSize', 'platSizeVal', 'px'); debounceGenerate()">
+            </div>
+            <div class="form-group flex-col" style="margin-bottom: 0;">
+                <label>Высота персонажа на платформе <span id="charOffsetVal" class="val-display">7%</span></label>
+                <input type="range" id="charOffset" min="-10" max="25" value="7" oninput="updateVal('charOffset', 'charOffsetVal', '%'); debounceGenerate()">
             </div>
         </div>
 
@@ -251,6 +255,16 @@
                 <input type="file" id="imgBtn-file" accept="image/*" style="display:none;" data-target="imgBtn" data-limit="2097152" onchange="handleFileUpload(event)">
             </div>
         </div>
+        <div class="flex-row">
+            <div class="form-group flex-col">
+                <label>Текст кнопки Старт (пусто = без текста)</label>
+                <input type="text" id="btnStartText" value="" placeholder="По умолчанию из языка или оставьте пусто для картинки" oninput="debounceGenerate()">
+            </div>
+            <div class="form-group flex-col">
+                <label>Текст кнопки Play Again / Заново</label>
+                <input type="text" id="btnRestartText" value="" placeholder="По умолчанию из языка (PLAY AGAIN / ЗАНОВО)" oninput="debounceGenerate()">
+            </div>
+        </div>
         <div class="flex-row" style="align-items: center; background: rgba(0,0,0,0.2); padding: 10px 15px; border-radius: 10px; margin-bottom: 15px;">
             <div class="form-group flex-col" style="flex: 2; margin-bottom: 0;">
                 <label class="checkbox-label" style="margin: 0;">
@@ -356,6 +370,7 @@ are | is | am | be</textarea>
                 imgBg: document.getElementById('imgBg').value,
                 imgChar: document.getElementById('imgChar').value,
                 charSize: document.getElementById('charSize').value,
+                charOffset: document.getElementById('charOffset').value,
                 platSize: document.getElementById('platSize').value,
                 imgPlat: document.getElementById('imgPlat').value,
                 imgLife: document.getElementById('imgLife').value,
@@ -373,6 +388,8 @@ are | is | am | be</textarea>
                 aColor: document.getElementById('aColor').value,
                 btnColor: document.getElementById('btnColor').value,
                 imgBtn: document.getElementById('imgBtn').value,
+                btnStartText: document.getElementById('btnStartText').value,
+                btnRestartText: document.getElementById('btnRestartText').value,
                 useNeon: document.getElementById('useNeon').checked,
                 neonColor: document.getElementById('neonColor').value,
                 qList: document.getElementById('qList').value,
@@ -406,8 +423,9 @@ are | is | am | be</textarea>
                     if(data.livesCount !== undefined) document.getElementById('livesCount').value = data.livesCount;
                     if(data.imgBg !== undefined) document.getElementById('imgBg').value = data.imgBg;
                     if(data.imgChar !== undefined) document.getElementById('imgChar').value = data.imgChar;
-                    if(data.charSize !== undefined) { document.getElementById('charSize').value = data.charSize; updateVal('charSize', 'charSizeVal'); }
-                    if(data.platSize !== undefined) { document.getElementById('platSize').value = data.platSize; updateVal('platSize', 'platSizeVal'); }
+                    if(data.charSize !== undefined) { document.getElementById('charSize').value = data.charSize; updateVal('charSize', 'charSizeVal', 'px'); }
+                    if(data.charOffset !== undefined) { document.getElementById('charOffset').value = data.charOffset; updateVal('charOffset', 'charOffsetVal', '%'); }
+                    if(data.platSize !== undefined) { document.getElementById('platSize').value = data.platSize; updateVal('platSize', 'platSizeVal', 'px'); }
                     if(data.imgPlat !== undefined) document.getElementById('imgPlat').value = data.imgPlat;
                     if(data.imgLife !== undefined) document.getElementById('imgLife').value = data.imgLife;
                     if(data.audioJump !== undefined) document.getElementById('audioJump').value = data.audioJump;
@@ -424,6 +442,8 @@ are | is | am | be</textarea>
                     if(data.aColor !== undefined) document.getElementById('aColor').value = data.aColor;
                     if(data.btnColor !== undefined) document.getElementById('btnColor').value = data.btnColor;
                     if(data.imgBtn !== undefined) document.getElementById('imgBtn').value = data.imgBtn;
+                    if(data.btnStartText !== undefined) document.getElementById('btnStartText').value = data.btnStartText;
+                    if(data.btnRestartText !== undefined) document.getElementById('btnRestartText').value = data.btnRestartText;
                     if(data.useNeon !== undefined) document.getElementById('useNeon').checked = data.useNeon;
                     if(data.neonColor !== undefined) document.getElementById('neonColor').value = data.neonColor;
                     if(data.qList !== undefined) document.getElementById('qList').value = data.qList;
@@ -441,8 +461,8 @@ are | is | am | be</textarea>
             reader.readAsText(file);
         }
 
-        function updateVal(inputId, displayId) {
-            document.getElementById(displayId).innerText = document.getElementById(inputId).value + 'px';
+        function updateVal(inputId, displayId, unit) {
+            document.getElementById(displayId).innerText = document.getElementById(inputId).value + (unit || 'px');
         }
 
         function getInputs() {
@@ -468,11 +488,14 @@ are | is | am | be</textarea>
                 aColor: document.getElementById('aColor').value,
                 btnColor: document.getElementById('btnColor').value,
                 imgBtn: document.getElementById('imgBtn').value,
+                btnStartText: document.getElementById('btnStartText').value,
+                btnRestartText: document.getElementById('btnRestartText').value,
                 useNeon: document.getElementById('useNeon').checked,
                 neonColor: document.getElementById('neonColor').value,
                 imgBg: document.getElementById('imgBg').value,
                 imgChar: document.getElementById('imgChar').value,
                 charSize: document.getElementById('charSize').value,
+                charOffset: parseFloat(document.getElementById('charOffset').value) || 7,
                 imgPlat: document.getElementById('imgPlat').value,
                 platSize: document.getElementById('platSize').value,
                 imgLife: document.getElementById('imgLife').value,
@@ -496,7 +519,6 @@ are | is | am | be</textarea>
             const conf = getInputs();
             const platHeight = Math.round(conf.platSize * 0.6);
 
-            // Generate initial life-icon HTML elements depending on conf.livesCount
             let lifeIconsHtml = '';
             for(let i=0; i<conf.livesCount; i++) {
                 lifeIconsHtml += `<div class="life-icon"></div>`;
@@ -577,6 +599,35 @@ are | is | am | be</textarea>
     
     .elt-btn-huge:hover { transform: scale(1.1) !important; ${!conf.imgBtn ? `background: #fff !important; color: #000 !important; text-shadow: none !important;` : `filter: drop-shadow(0 0 15px rgba(255,255,255,0.4));`} }
     
+        .elt-restart-btn { 
+        font-family: ${conf.qFont} !important; 
+        font-weight: 900 !important; 
+        font-size: clamp(22px, 4.5vw, 34px) !important; 
+        cursor: pointer !important; 
+        transition: 0.3s all ease !important; 
+        z-index: 10; 
+        color: #ffffff !important; 
+        text-transform: uppercase !important; 
+        letter-spacing: 2px !important;
+        background: rgba(0, 0, 0, 0.55) !important;
+        border: 2px solid ${conf.neonColor} !important;
+        border-radius: 40px !important;
+        padding: 12px 40px !important;
+        box-shadow: 0 0 20px ${conf.neonColor}, inset 0 0 10px ${conf.neonColor} !important;
+        text-shadow: 0 0 10px ${conf.neonColor}, 0 0 20px ${conf.neonColor}, 0 2px 4px rgba(0,0,0,0.8) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        outline: none !important;
+    }
+    .elt-restart-btn:hover { 
+        transform: scale(1.08) !important; 
+        background: rgba(255, 255, 255, 0.12) !important;
+        box-shadow: 0 0 30px ${conf.neonColor}, inset 0 0 15px ${conf.neonColor} !important;
+        text-shadow: 0 0 15px #fff, 0 0 25px ${conf.neonColor} !important;
+    }
+
     .screen-msg { color: #fff; font-size: clamp(30px, 5vw, 50px); font-weight: 900; margin-bottom: 40px; text-align: center; text-transform: uppercase; z-index: 10;}
     #screen-win .screen-msg { color: #ffd700; text-shadow: 0 0 20px #ffd700;}
     #screen-over .screen-msg { color: #ff4757; text-shadow: 0 0 20px #ff4757;}
@@ -593,21 +644,27 @@ are | is | am | be</textarea>
     <div id="character" class="state-idle" style="bottom: 2%;"></div>
 </div>
 
-<div id="screen-start" class="elt-screen"><div class="elt-title-huge">${conf.title}</div><button class="elt-btn-huge" id="btn-start">JUMP IN!</button></div>
-<div id="screen-over" class="elt-screen elt-hidden"><img src="${conf.imgLose}" class="screen-img lose-img"><div class="screen-msg">${conf.loseText}</div><button class="elt-btn-huge" id="btn-try">RESTART</button></div>
-<div id="screen-win" class="elt-screen elt-hidden"><img src="${conf.imgWin}" class="screen-img win-img"><div class="screen-msg">${conf.winText}</div><button class="elt-btn-huge" id="btn-win-restart">PLAY AGAIN</button></div>
+<div id="screen-start" class="elt-screen"><div class="elt-title-huge">${conf.title}</div><button class="elt-btn-huge" id="btn-start"></button></div>
+<div id="screen-over" class="elt-screen elt-hidden"><img src="${conf.imgLose}" class="screen-img lose-img"><div class="screen-msg">${conf.loseText}</div><button class="elt-restart-btn" id="btn-try"></button></div>
+<div id="screen-win" class="elt-screen elt-hidden"><img src="${conf.imgWin}" class="screen-img win-img"><div class="screen-msg">${conf.winText}</div><button class="elt-restart-btn" id="btn-win-restart"></button></div>
 
 <script>
 (function(){
     const dict = { EN: { start: "START", restart: "PLAY AGAIN" }, RU: { start: "ИГРАТЬ", restart: "ЗАНОВО" }, ES: { start: "JUGAR", restart: "REINICIAR" }, FR: { start: "JOUER", restart: "REJOUER" }, DE: { start: "START", restart: "NEUSTART" }, IT: { start: "INIZIA", restart: "RIPROVA" } };
-    const lang = dict['${conf.lang}'] || dict['EN'];
-    document.getElementById('btn-start').innerText = lang.start;
-    document.getElementById('btn-win-restart').innerText = lang.restart;
-    document.getElementById('btn-try').innerText = lang.restart;
+    const langDict = dict['${conf.lang}'] || dict['EN'];
+    const customStart = ${JSON.stringify(conf.btnStartText)};
+    const customRestart = ${JSON.stringify(conf.btnRestartText)};
+    const startBtnLabel = customStart.trim() !== "" ? customStart : (${JSON.stringify(conf.imgBtn)} !== "" ? "" : langDict.start);
+    const restartBtnLabel = customRestart.trim() !== "" ? customRestart : langDict.restart;
+
+    document.getElementById('btn-start').innerText = startBtnLabel;
+    document.getElementById('btn-win-restart').innerText = restartBtnLabel;
+    document.getElementById('btn-try').innerText = restartBtnLabel;
     const TASKS = ${JSON.stringify(conf.tasks)};
     const USE_TIMER = ${conf.useTimer};
     const TIME_LIMIT = ${conf.timerSec};
     const MAX_LIVES = ${conf.livesCount};
+    const CHAR_OFFSET = ${conf.charOffset};
     let currentLvl = 0, lives = MAX_LIVES, timerInt = null, timeLeft = TIME_LIMIT, isJumping = false, isPaused = false, bgScrollPos = 0;
     let currentBaseLeft = 50, currentBaseText = "START";
     const BASE_BOTTOM = 2;
@@ -637,7 +694,7 @@ are | is | am | be</textarea>
     function tickTimer() { if(isPaused) return; timeLeft--; updateTimerDisplay(); if(timeLeft <= 0) { clearInterval(timerInt); triggerTimeOut(); } }
     function updateTimerDisplay() { let m = Math.floor(timeLeft / 60).toString().padStart(2, '0'); let s = (timeLeft % 60).toString().padStart(2, '0'); timerBox.innerText = m + ':' + s; timerBox.style.color = timeLeft <= 10 ? '#ff4757' : '#fff'; }
     function updateLives() { let icons = livesBox.children; for(let i=0; i<MAX_LIVES; i++) { if(i < lives) icons[i].classList.remove('lost'); else icons[i].classList.add('lost'); } }
-    function resetCharacterToBase() { charEl.className = 'state-idle'; charEl.style.transition = 'none'; charEl.style.bottom = (BASE_BOTTOM + 7) + '%'; charEl.style.left = currentBaseLeft + '%'; void charEl.offsetWidth; charEl.style.transition = ''; }
+    function resetCharacterToBase() { charEl.className = 'state-idle'; charEl.style.transition = 'none'; charEl.style.bottom = (BASE_BOTTOM + CHAR_OFFSET) + '%'; charEl.style.left = currentBaseLeft + '%'; void charEl.offsetWidth; charEl.style.transition = ''; }
     
     function loadLevel(isFirstLevel) {
         if(currentLvl >= TASKS.length) { winGame(); return; }
@@ -663,7 +720,7 @@ are | is | am | be</textarea>
         if(isJumping || isPaused) return; isJumping = true; clearInterval(timerInt);
         let charX = parseFloat(charEl.style.left) || 50; if(targetX < charX) charEl.style.setProperty('--dir', -1); else charEl.style.setProperty('--dir', 1);
         if(!isMuted) { sfxJump.currentTime = 0; sfxJump.play(); }
-        charEl.className = 'state-idle'; charEl.style.bottom = (targetY + 7) + '%'; charEl.style.left = targetX + '%';
+        charEl.className = 'state-idle'; charEl.style.bottom = (targetY + CHAR_OFFSET) + '%'; charEl.style.left = targetX + '%';
         setTimeout(() => {
             let txtEl = targetPlat.querySelector('.platform-text');
             if(isCorrect) {
@@ -671,7 +728,7 @@ are | is | am | be</textarea>
                 setTimeout(() => {
                     qBanner.classList.add('hidden'); let dropDist = targetY - BASE_BOTTOM;
                     platLayer.style.transition = 'transform 0.8s ease-in-out'; platLayer.style.transform = 'translateY(' + dropDist + 'vh)';
-                    charEl.className = 'state-cam-drop'; charEl.style.bottom = (BASE_BOTTOM + 7) + '%';
+                    charEl.className = 'state-cam-drop'; charEl.style.bottom = (BASE_BOTTOM + CHAR_OFFSET) + '%';
                     bgScrollPos += dropDist * 0.4; gameBg.style.backgroundPositionY = bgScrollPos + '%';
                     setTimeout(() => { currentBaseLeft = targetX; currentLvl++; charEl.className = 'state-idle'; loadLevel(false); isJumping = false; }, 850);
                 }, 350);
@@ -742,8 +799,9 @@ are | is | am | be</textarea>
             el.addEventListener('change', debounceGenerate);
         });
 
-        updateVal('charSize', 'charSizeVal');
-        updateVal('platSize', 'platSizeVal');
+        updateVal('charSize', 'charSizeVal', 'px');
+        updateVal('platSize', 'platSizeVal', 'px');
+        updateVal('charOffset', 'charOffsetVal', '%');
         debounceGenerate();
     </script>
 </body>
