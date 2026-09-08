@@ -85,13 +85,13 @@
         <h3>Графика и Звуки</h3>
         <div class="flex-row">
             <div class="form-group flex-col">
-                <label>Фон (Картинка)</label>
+                <label>Фон (Картинка, пусто = прозрачно)</label>
                 <div class="input-with-button">
                     <input type="text" id="imgBg" value="https://i.postimg.cc/3R2tCYQK/2052ff5dcac5049d621d5d0a2bba92fe-269fd2de-2d39-473e-b0e6-fe5326b0ee97.jpg" oninput="debounceGenerate()">
                     <button class="upload-btn" onclick="document.getElementById('imgBg-file').click()">📂</button>
                 </div>
                 <input type="file" id="imgBg-file" accept="image/*" style="display:none;" data-target="imgBg" data-limit="5242880" onchange="handleFileUpload(event)">
-                <div class="hint">Ссылка или файл (до 5 МБ).</div>
+                <div class="hint">Ссылка, файл или пусто для прозрачного фона.</div>
             </div>
             <div class="form-group flex-col">
                 <label>Персонаж</label>
@@ -492,7 +492,7 @@ are | is | am | be</textarea>
                 btnRestartText: document.getElementById('btnRestartText').value,
                 useNeon: document.getElementById('useNeon').checked,
                 neonColor: document.getElementById('neonColor').value,
-                imgBg: document.getElementById('imgBg').value,
+                imgBg: document.getElementById('imgBg').value.trim(),
                 imgChar: document.getElementById('imgChar').value,
                 charSize: document.getElementById('charSize').value,
                 charOffset: parseFloat(document.getElementById('charOffset').value) || 7,
@@ -524,6 +524,8 @@ are | is | am | be</textarea>
                 lifeIconsHtml += `<div class="life-icon"></div>`;
             }
 
+            const bgStyle = conf.imgBg !== "" ? `background: url('${conf.imgBg}') bottom center/cover no-repeat;` : `background: transparent;`;
+
             const innerHTML = `<!DOCTYPE html>
 <html lang="${conf.lang.toLowerCase()}">
 <head>
@@ -532,10 +534,10 @@ are | is | am | be</textarea>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Alice&family=Amatic+SC:wght@700&family=Bad+Script&family=Caveat:wght@700&family=Comfortaa:wght@700&family=Jura:wght@700&family=Kurale&family=Lobster&family=Montserrat:wght@600;800&family=Neucha&family=Oswald:wght@500;700&family=Pacifico&family=Roboto:wght@500;700&family=Rubik:wght@500;700&family=Russo+One&display=swap');
     
-    html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; touch-action: none; font-family: 'Montserrat', sans-serif;}
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; overflow: hidden; touch-action: none; font-family: 'Montserrat', sans-serif;}
     * { box-sizing: border-box !important; -webkit-tap-highlight-color: transparent;}
     
-    #game-bg { position: absolute; inset: 0; width: 100%; height: 100%; background: url('${conf.imgBg}') bottom center/cover no-repeat; z-index: 0; transition: background-position-y 0.8s ease-in-out; }
+    #game-bg { position: absolute; inset: 0; width: 100%; height: 100%; ${bgStyle} z-index: 0; transition: background-position-y 0.8s ease-in-out; }
     #world-container { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 10;}
 
     #ui-bar { position: absolute; top: 0; left: 0; right: 0; padding: 15px 20px; display: flex; justify-content: space-between; align-items: flex-start; z-index: 50;}
