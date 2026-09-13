@@ -144,7 +144,7 @@
             <div class="form-group flex-col">
                 <label>Звук прыжка</label>
                 <div class="input-with-button">
-                    <input type="text" id="audioJump" value="https://files.catbox.moe/e7svdw.mp3" oninput="debounceGenerate()">
+                    <input type="text" id="audioJump" value="https://archive.org/download/cute-and-lively-jump-sound/cute-and-lively-jump-sound.mp3" oninput="debounceGenerate()">
                     <button class="upload-btn" onclick="document.getElementById('audioJump-file').click()">📂</button>
                 </div>
                 <input type="file" id="audioJump-file" accept="audio/*" style="display:none;" data-target="audioJump" data-limit="5242880" onchange="handleFileUpload(event)">
@@ -152,7 +152,7 @@
             <div class="form-group flex-col">
                 <label>Звук падения</label>
                 <div class="input-with-button">
-                    <input type="text" id="audioFall" value="https://files.catbox.moe/7tt56a.mp3" oninput="debounceGenerate()">
+                    <input type="text" id="audioFall" value="https://archive.org/download/bu-bu--multyashnyiy-proval/bu-bu--multyashnyiy-proval.mp3" oninput="debounceGenerate()">
                     <button class="upload-btn" onclick="document.getElementById('audioFall-file').click()">📂</button>
                 </div>
                 <input type="file" id="audioFall-file" accept="audio/*" style="display:none;" data-target="audioFall" data-limit="5242880" onchange="handleFileUpload(event)">
@@ -162,7 +162,7 @@
             <div class="form-group flex-col">
                 <label>Звук верного ответа</label>
                 <div class="input-with-button">
-                    <input type="text" id="audioCorrect" value="https://files.catbox.moe/l6z61z.mp3" oninput="debounceGenerate()">
+                    <input type="text" id="audioCorrect" value="https://archive.org/download/cartoon-button-click-sound/cartoon-button-click-sound.mp3" oninput="debounceGenerate()">
                     <button class="upload-btn" onclick="document.getElementById('audioCorrect-file').click()">📂</button>
                 </div>
                 <input type="file" id="audioCorrect-file" accept="audio/*" style="display:none;" data-target="audioCorrect" data-limit="5242880" onchange="handleFileUpload(event)">
@@ -170,7 +170,7 @@
             <div class="form-group flex-col">
                 <label>Звук победы (финал)</label>
                 <div class="input-with-button">
-                    <input type="text" id="audioFinalWin" value="https://files.catbox.moe/8jacx9.mp3" oninput="debounceGenerate()">
+                    <input type="text" id="audioFinalWin" value="https://archive.org/download/the-sound-of-victory-in-the-game-level/the-sound-of-victory-in-the-game-level.mp3" oninput="debounceGenerate()">
                     <button class="upload-btn" onclick="document.getElementById('audioFinalWin-file').click()">📂</button>
                 </div>
                 <input type="file" id="audioFinalWin-file" accept="audio/*" style="display:none;" data-target="audioFinalWin" data-limit="5242880" onchange="handleFileUpload(event)">
@@ -179,7 +179,7 @@
         <div class="form-group">
             <label>Фоновая музыка</label>
             <div class="input-with-button">
-                <input type="text" id="audioBg" value="https://files.catbox.moe/k3bx7z.mp3" oninput="debounceGenerate()">
+                <input type="text" id="audioBg" value="" oninput="debounceGenerate()">
                 <button class="upload-btn" onclick="document.getElementById('audioBg-file').click()">📂</button>
             </div>
             <input type="file" id="audioBg-file" accept="audio/*" style="display:none;" data-target="audioBg" data-limit="5242880" onchange="handleFileUpload(event)">
@@ -499,13 +499,13 @@ are | is | am | be</textarea>
                 imgPlat: document.getElementById('imgPlat').value,
                 platSize: document.getElementById('platSize').value,
                 imgLife: document.getElementById('imgLife').value,
-                imgWin: document.getElementById('imgWin').value,
-                imgLose: document.getElementById('imgLose').value,
-                audioBg: document.getElementById('audioBg').value,
-                audioJump: document.getElementById('audioJump').value,
-                audioFall: document.getElementById('audioFall').value,
-                audioCorrect: document.getElementById('audioCorrect').value,
-                audioFinalWin: document.getElementById('audioFinalWin').value,
+                imgWin: document.getElementById('imgWin').value.trim(),
+                imgLose: document.getElementById('imgLose').value.trim(),
+                audioBg: document.getElementById('audioBg').value.trim(),
+                audioJump: document.getElementById('audioJump').value.trim(),
+                audioFall: document.getElementById('audioFall').value.trim(),
+                audioCorrect: document.getElementById('audioCorrect').value.trim(),
+                audioFinalWin: document.getElementById('audioFinalWin').value.trim(),
                 useTimer: document.getElementById('useTimer').checked,
                 allowPause: document.getElementById('allowPause').checked,
                 timerSec: parseInt(document.getElementById('timerSec').value) || 30,
@@ -525,6 +525,8 @@ are | is | am | be</textarea>
             }
 
             const bgStyle = conf.imgBg !== "" ? `background: url('${conf.imgBg}') bottom center/cover no-repeat;` : `background: transparent;`;
+            const winImgHtml = conf.imgWin !== "" ? `<img src="${conf.imgWin}" class="screen-img win-img">` : '';
+            const loseImgHtml = conf.imgLose !== "" ? `<img src="${conf.imgLose}" class="screen-img lose-img">` : '';
 
             const innerHTML = `<!DOCTYPE html>
 <html lang="${conf.lang.toLowerCase()}">
@@ -647,8 +649,8 @@ are | is | am | be</textarea>
 </div>
 
 <div id="screen-start" class="elt-screen"><div class="elt-title-huge">${conf.title}</div><button class="elt-btn-huge" id="btn-start"></button></div>
-<div id="screen-over" class="elt-screen elt-hidden"><img src="${conf.imgLose}" class="screen-img lose-img"><div class="screen-msg">${conf.loseText}</div><button class="elt-restart-btn" id="btn-try"></button></div>
-<div id="screen-win" class="elt-screen elt-hidden"><img src="${conf.imgWin}" class="screen-img win-img"><div class="screen-msg">${conf.winText}</div><button class="elt-restart-btn" id="btn-win-restart"></button></div>
+<div id="screen-over" class="elt-screen elt-hidden">${loseImgHtml}<div class="screen-msg">${conf.loseText}</div><button class="elt-restart-btn" id="btn-try"></button></div>
+<div id="screen-win" class="elt-screen elt-hidden">${winImgHtml}<div class="screen-msg">${conf.winText}</div><button class="elt-restart-btn" id="btn-win-restart"></button></div>
 
 <script>
 (function(){
@@ -670,7 +672,9 @@ are | is | am | be</textarea>
     let currentLvl = 0, lives = MAX_LIVES, timerInt = null, timeLeft = TIME_LIMIT, isJumping = false, isPaused = false, bgScrollPos = 0;
     let currentBaseLeft = 50, currentBaseText = "START";
     const BASE_BOTTOM = 2;
-    const bgMusic = new Audio('${conf.audioBg}'); bgMusic.loop = true; bgMusic.volume = 0.3;
+    const HAS_BG_MUSIC = ${JSON.stringify(conf.audioBg.trim() !== "")};
+    const bgMusic = HAS_BG_MUSIC ? new Audio('${conf.audioBg}') : null; 
+    if(bgMusic) { bgMusic.loop = true; bgMusic.volume = 0.3; }
     const sfxJump = new Audio('${conf.audioJump}'); sfxJump.volume = 0.8;
     const sfxFall = new Audio('${conf.audioFall}'); sfxFall.volume = 0.8;
     const sfxCorrect = new Audio('${conf.audioCorrect}'); sfxCorrect.volume = 0.8; 
@@ -681,7 +685,7 @@ are | is | am | be</textarea>
     document.getElementById('btn-start').onclick = startGame;
     document.getElementById('btn-try').onclick = startGame;
     document.getElementById('btn-win-restart').onclick = startGame;
-    audioBtn.onclick = () => { isMuted = !isMuted; audioBtn.innerText = isMuted ? '🔇' : '🔊'; if(isMuted) { bgMusic.pause(); sfxFinalWin.pause(); } else { if(document.getElementById('screen-win').classList.contains('elt-hidden')) bgMusic.play(); } };
+    audioBtn.onclick = () => { isMuted = !isMuted; audioBtn.innerText = isMuted ? '🔇' : '🔊'; if(isMuted) { if(bgMusic) bgMusic.pause(); sfxFinalWin.pause(); } else { if(document.getElementById('screen-win').classList.contains('elt-hidden') && bgMusic) bgMusic.play().catch(e=>{}); } };
     pauseBtn.onclick = () => { if(!USE_TIMER || isJumping) return; isPaused = !isPaused; pauseBtn.innerText = isPaused ? '▶️' : '⏸️'; if(isPaused) { platLayer.style.opacity = '0'; platLayer.style.pointerEvents = 'none'; qBanner.style.opacity = '0'; } else { platLayer.style.opacity = '1'; platLayer.style.pointerEvents = 'auto'; qBanner.style.opacity = '1'; } };
     
     function startGame() {
@@ -689,7 +693,7 @@ are | is | am | be</textarea>
         currentLvl = 0; lives = MAX_LIVES; isJumping = false; isPaused = false; bgScrollPos = 0; currentBaseLeft = 50; currentBaseText = "START";
         gameBg.style.backgroundPositionY = '0%'; charEl.style.setProperty('--dir', 1); if(pauseBtn) pauseBtn.innerText = '⏸️';
         platLayer.style.opacity = '1'; platLayer.style.pointerEvents = 'auto'; qBanner.style.opacity = '1';
-        updateLives(); sfxFinalWin.pause(); sfxFinalWin.currentTime = 0; if(!isMuted) bgMusic.play().catch(e=>{});
+        updateLives(); sfxFinalWin.pause(); sfxFinalWin.currentTime = 0; if(!isMuted && bgMusic) bgMusic.play().catch(e=>{});
         loadLevel(true);
     }
     function startLevelTimer() { if(!USE_TIMER) return; timeLeft = TIME_LIMIT; updateTimerDisplay(); clearInterval(timerInt); timerInt = setInterval(tickTimer, 1000); }
@@ -744,8 +748,8 @@ are | is | am | be</textarea>
         }, 500);
     }
 
-    function gameOver() { clearInterval(timerInt); document.getElementById('screen-over').classList.remove('elt-hidden'); }
-    function winGame() { clearInterval(timerInt); bgMusic.pause(); if(!isMuted) { sfxFinalWin.currentTime = 0; sfxFinalWin.play(); } document.getElementById('screen-win').classList.remove('elt-hidden'); }
+    function gameOver() { clearInterval(timerInt); if(bgMusic) bgMusic.pause(); document.getElementById('screen-over').classList.remove('elt-hidden'); }
+    function winGame() { clearInterval(timerInt); if(bgMusic) bgMusic.pause(); if(!isMuted) { sfxFinalWin.currentTime = 0; sfxFinalWin.play(); } document.getElementById('screen-win').classList.remove('elt-hidden'); }
 })();
 <\/script>
 </body>
@@ -761,7 +765,7 @@ are | is | am | be</textarea>
         function downloadHtmlFile() {
             generateCode(); 
             const htmlContent = document.getElementById('previewFrame').srcdoc;
-            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const blob = new Blob(['\uFEFF' + htmlContent], { type: 'text/html;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
